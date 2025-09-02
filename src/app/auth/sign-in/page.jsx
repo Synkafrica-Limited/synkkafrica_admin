@@ -1,4 +1,7 @@
+"use clients";
+
 import React from 'react';
+import Image from "next/image";
 
 export default function AdminAuth() {
 	return (
@@ -6,11 +9,11 @@ export default function AdminAuth() {
 			<div className="flex w-full max-w-4xl shadow-lg rounded-2xl overflow-hidden bg-white">
 				{/* Left: Logo */}
 				<div className="flex flex-col justify-center items-center bg-white w-1/2 p-8">
-					<img src="/globe.svg" alt="Logo" className="w-48 h-48 object-contain" />
+					<Image src="/images/synkkafrica_logo.png" alt="Logo" className="object-contain" width={150} height={100} />
 				</div>
 				{/* Right: Auth Form */}
 				<div className="flex flex-col justify-center items-center w-1/2 p-8">
-					<img src="/globe.svg" alt="Logo small" className="w-10 h-10 mb-4" />
+					<Image src="images/synkkafrica_logo_small.png" alt="Logo small" className="w-10 h-10 mb-4" />
 					<h2 className="text-2xl font-bold mb-2 text-gray-800">Sign in</h2>
 					<p className="mb-6 text-gray-500">Welcome to the admin dashboard.</p>
 					<form className="w-full max-w-xs space-y-4">
