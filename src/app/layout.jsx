@@ -17,7 +17,7 @@ const montserrat = Montserrat({
 
 
 export const metadata = {
-  title: "SynKKafrica",
+  title: "SynKKafrica Admin",
   description: "Empowering mobility across Africa",
 };
 
