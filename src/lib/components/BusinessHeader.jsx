@@ -2,7 +2,7 @@ import React from "react";
 
 export default function BusinessHeader({ title = "Hello Admin", subtitle = "Welcome back" }) {
   return (
-    <header className="flex items-center justify-between py-6 px-8 bg-white border-b">
+  <header className="flex items-center justify-between py-6 px-8 bg-white shadow-sm">
       <div>
         <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
         <p className="text-gray-500">{subtitle}</p>
