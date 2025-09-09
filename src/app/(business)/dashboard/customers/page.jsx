@@ -22,7 +22,7 @@ export default function CustomerPage() {
             stats={[
               { label: "Total customers", value: 1400, sub: "+20.1% from last month", icon: "user" },
               { label: "Active booking", value: 700, sub: "+15% from last month", icon: "bell" },
-              { label: "New customer (Last month)", value: 150, sub: "+5% from last month", icon: "users" },
+              { label: "New customers", value: 150, sub: "+5% from last month", icon: "users" },
               { label: "Avg. booking value", value: "$60.80", sub: "+1% from last month", icon: "money" },
             ]}
           />
