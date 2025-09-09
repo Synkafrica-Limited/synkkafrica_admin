@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminButton from "@/lib/ui/button";
-import { getProfile, updateProfile } from "@/app/controllers/business/editProfile.controller";
+import { getProfile, updateProfile } from "@/controllers/business/profile.controller";
 
 const countries = ["Nigeria", "Ghana", "Kenya", "South Africa", "Other"];
 
