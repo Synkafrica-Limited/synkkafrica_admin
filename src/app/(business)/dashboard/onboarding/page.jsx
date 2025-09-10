@@ -35,8 +35,8 @@ export default function BusinessOnboarding() {
 								</li>
 							</ul>
 							<OnboardingActions
-								onProfile={() => window.location.href = '/business/dashboard/profile'}
-								onInvite={() => window.location.href = '/business/dashboard/team'}
+								onProfile={() => window.location.href = '/dashboard/profile'}
+								onInvite={() => window.location.href = '/dashboard/team'}
 								onAssignSupport={(role) => alert(`Assigning support for ${role}`)}
 							/>
 						</div>
