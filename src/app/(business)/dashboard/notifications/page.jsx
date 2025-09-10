@@ -5,52 +5,90 @@ import BusinessSidebar from "@/lib/components/BusinessSidebar";
 import BusinessHeader from "@/lib/components/BusinessHeader";
 import AdminButton from "@/lib/ui/button";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
+import { statusColors } from "../../../../lib/ui/statusColors";
 
-const stats = [
-  { label: "Total notification", value: 700, sub: "Since last month", icon: <FaBell className="text-orange-400" /> },
-  { label: "Unread alert", value: 70, sub: "Requires attention", icon: <FaExclamationCircle className="text-orange-400" /> },
-  { label: "New reservations", value: 140, sub: "Last 48 hours", icon: <FaCalendarCheck className="text-orange-400" /> },
-  { label: "Completed bookings", value: 200, sub: "Last week", icon: <FaCheckCircle className="text-orange-400" /> }
-];
-
-const tabs = [
-  "All Payment",
-  "Successful Payment",
-  "Pending Payment",
-  "Declined Payment"
-];
-
-const payments = [
+// Dummy notification data
+const notifications = [
   {
     id: 1,
+    type: "success",
+    icon: <FaCalendarCheck className="text-orange-400" />,
+    title: "Reservation #30011 confirmed for Temi",
+    related: "Temi",
+    time: "4 hours ago",
+    status: "Success"
+  },
+  {
+    id: 2,
+    type: "unread",
+    icon: <FaCalendarCheck className="text-orange-400" />,
+    title: "New reservation #30011 received from Dammy",
+    related: "Dammy",
+    time: "15 minutes ago",
+    status: "Unread"
+  },
+  {
+    id: 3,
+    type: "pending",
     icon: <FaExclamationCircle className="text-orange-400" />,
     title: "Payment for reservation #30011 failed.",
     related: "Ezra",
     time: "3 hours ago",
     status: "Pending"
   },
-  // ...repeat for demo
+  {
+    id: 4,
+    type: "read",
+    icon: <FaEnvelopeOpenText className="text-orange-400" />,
+    title: "System update completed successfully.",
+    related: "",
+    time: "1 hours ago",
+    status: "Read"
+  },
+  {
+    id: 5,
+    type: "success",
+    icon: <FaCheckCircle className="text-blue-400" />,
+    title: "Trip #30011 completed for Emma",
+    related: "Emma",
+    time: "4 hours ago",
+    status: "Success"
+  }
 ];
 
-const statusColors = {
-  Pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  Success: "bg-green-100 text-green-700 border-green-300",
-  Declined: "bg-red-100 text-red-700 border-red-300"
-};
+// Dummy stats
+const stats = [
+  { label: "Total notification", value: 700, sub: "Since last month", icon: "bell" },
+  { label: "Unread alert", value: 70, sub: "Requires attention", icon: "unread_alert" },
+  { label: "New reservations", value: 140, sub: "Last 48 hours", icon: "calendar_check" },
+  { label: "Completed bookings", value: 200, sub: "Last week", icon: "check_circle" }
+];
 
-export default function PaymentsPage() {
-  const [tab, setTab] = useState("Pending Payment");
+
+export default function NotificationPage() {
+  const [tab, setTab] = useState("All Notifications");
+
+  // Tabs for filtering notifications
+  const tabs = [
+    "All Notifications",
+    "Completed Bookings",
+    "New Reservations",
+    "Critical Alert"
+  ];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar: fixed, not scrollable */}
       <div className="sticky top-0 h-screen">
-        <BusinessSidebar active="Payment" />
+        <BusinessSidebar active="Notification" />
       </div>
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto">
+      {/* Main area: header fixed, content scrollable */}
+      <div className="flex-1 flex flex-col h-screen">
         <div className="sticky top-0 z-30 bg-gray-50">
-          <BusinessHeader title="Payments" subtitle="" />
+          <BusinessHeader title="Notification" subtitle="" />
         </div>
-        <div className="p-4 md:p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10">
+          <div className="my-4" />
           <DashboardStatsWidget stats={stats} />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
             <div className="md:col-span-3">
@@ -71,34 +109,27 @@ export default function PaymentsPage() {
                   ))}
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800 mb-2">
-                    {tab === "Pending Payment"
-                      ? "Pending Payment Notifications"
-                      : tab === "Successful Payment"
-                      ? "Successful Payment Notifications"
-                      : tab === "Declined Payment"
-                      ? "Declined Payment Notifications"
-                      : "All Payment Notifications"}
-                  </div>
-                  {payments
-                    .filter((p) => {
-                      if (tab === "All Payment") return true;
-                      if (tab === "Pending Payment") return p.status === "Pending";
-                      if (tab === "Successful Payment") return p.status === "Success";
-                      if (tab === "Declined Payment") return p.status === "Declined";
+                  {notifications
+                    .filter((n) => {
+                      if (tab === "All Notifications") return true;
+                      if (tab === "Completed Bookings") return n.status === "Success";
+                      if (tab === "New Reservations") return n.title.toLowerCase().includes("reservation");
+                      if (tab === "Critical Alert") return n.type === "pending" || n.type === "unread";
                       return true;
                     })
-                    .map((p) => (
-                      <div key={p.id} className="flex items-start gap-4 py-4 border-b last:border-b-0">
-                        <div className="flex-shrink-0">{p.icon}</div>
+                    .map((n) => (
+                      <div key={n.id} className="flex items-start gap-4 py-4 border-b last:border-b-0">
+                        <div className="flex-shrink-0">{n.icon}</div>
                         <div className="flex-1">
-                          <div className="font-medium text-gray-800">{p.title}</div>
-                          <div className="text-xs text-gray-400">Related: {p.related}</div>
-                          <div className="text-xs text-gray-400">{p.time}</div>
+                          <div className="font-medium text-gray-800">{n.title}</div>
+                          {n.related && (
+                            <div className="text-xs text-gray-400">Related: {n.related}</div>
+                          )}
+                          <div className="text-xs text-gray-400">{n.time}</div>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <span className={`px-3 py-1 rounded-full border text-xs font-semibold ${statusColors[p.status]}`}>
-                            {p.status}
+                          <span className={`px-3 py-1 rounded-full border text-xs font-semibold ${statusColors[n.status]}`}>
+                            {n.status}
                           </span>
                           <button className="text-xs text-gray-500 hover:text-orange-500 flex items-center gap-1">
                             View details <span className="text-lg">&gt;</span>

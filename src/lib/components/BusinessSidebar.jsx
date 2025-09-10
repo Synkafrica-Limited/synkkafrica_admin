@@ -6,9 +6,8 @@ const menuItems = [
   { label: "Home", icon: <FaHome />, href: "/dashboard" },
   { label: "Customers", icon: <FaUsers />, href: "/dashboard/customers" },
   { label: "Vendors", icon: <FaStore />, href: "/dashboard/vendors" },
-  { label: "Notification", icon: <FaBell />, href: "/dashboard/notification" },
-  { label: "Payment", icon: <FaCreditCard />, href: "/dashboard/payment" },
-  //listings
+  { label: "Notification", icon: <FaBell />, href: "/dashboard/notifications" },
+  { label: "Payment", icon: <FaCreditCard />, href: "/finance/dashboard" },
   { label: "Listings", icon: <FaList />, href: "/dashboard/listings" },
 ];
 
