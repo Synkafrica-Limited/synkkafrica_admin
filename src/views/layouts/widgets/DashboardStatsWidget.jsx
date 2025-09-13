@@ -1,18 +1,22 @@
-import { FaUser, FaBell, FaMoneyBillWave, FaStar, FaUserAlt, FaBook, FaCalendarCheck, FaCheckCircle, FaRegBell, FaBellSlash } from "react-icons/fa";
+import list from "postcss/lib/list";
+import { FaUser, FaBell, FaMoneyBillWave, FaStar, FaUserAlt, FaBook, FaCalendarCheck, FaCheckCircle, FaRegBell, FaBellSlash, FaList, FaThList, FaListAlt } from "react-icons/fa";
 
 
 export default function DashboardStatsWidget({ stats }) {
   // Optionally, you can map icon names to components for flexibility
   const iconMap = {
-    users: <FaUser className="text-primary-500 text-2xl" />,
-    user: <FaUser className="text-primary-500 text-2xl" />,
-    bell: <FaBell className="text-primary-500 text-2xl" />,
-    money: <FaMoneyBillWave className="text-primary-500 text-2xl" />,
-    ratings: <FaStar className="text-primary-500 text-2xl" />,
-    bookings: <FaBook className="text-primary-500 text-2xl" />,
-    calendar_check: <FaCalendarCheck className="text-primary-500 text-2xl" />,
-    check_circle: <FaCheckCircle className="text-primary-500 text-2xl" />,
-    unread_alert: <FaBellSlash className="text-primary-500 text-2xl" />,
+    users: <FaUser className="text-primary-500 text-md" />,
+    user: <FaUser className="text-primary-500 text-md" />,
+    bell: <FaBell className="text-primary-500 text-md" />,
+    money: <FaMoneyBillWave className="text-primary-500 text-md" />,
+    ratings: <FaStar className="text-primary-500 text-md" />,
+    bookings: <FaBook className="text-primary-500 text-md" />,
+    calendar_check: <FaCalendarCheck className="text-primary-500 text-md" />,
+    check_circle: <FaCheckCircle className="text-primary-500 text-md" />,
+    unread_alert: <FaBellSlash className="text-primary-500 text-md" />,
+    listings: <FaList className="text-primary-500 text-md" />,
+    non_active_listings: <FaListAlt className="text-red-500 text-md" />,
+    payment: <FaMoneyBillWave className="text-green-500 text-md" />,
   };
 
   return (

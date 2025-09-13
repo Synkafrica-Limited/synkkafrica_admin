@@ -7,10 +7,10 @@ import AdminButton from "@/lib/ui/button";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
 
 const stats = [
-  { label: "Total notification", value: 700, sub: "Since last month", icon: <FaBell className="text-orange-400" /> },
-  { label: "Unread alert", value: 70, sub: "Requires attention", icon: <FaExclamationCircle className="text-orange-400" /> },
-  { label: "New reservations", value: 140, sub: "Last 48 hours", icon: <FaCalendarCheck className="text-orange-400" /> },
-  { label: "Completed bookings", value: 200, sub: "Last week", icon: <FaCheckCircle className="text-orange-400" /> }
+  { label: "Total notification", value: 700, sub: "Since last month", icon: "bell" },
+  { label: "Unread alert", value: 70, sub: "Requires attention", icon: "unread_alert" },
+  { label: "New reservations", value: 140, sub: "Last 48 hours", icon: "calendar_check" },
+  { label: "Completed bookings", value: 200, sub: "Last week", icon: "check_circle" }
 ];
 
 const tabs = [

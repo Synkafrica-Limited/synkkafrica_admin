@@ -5,30 +5,49 @@ import BusinessHeader from "@/lib/components/BusinessHeader";
 import AdminButton from "@/lib/ui/button";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
 
+// Toggle component
+function StatusToggle({ checked, onChange }) {
+	return (
+		<label className="inline-flex items-center cursor-pointer">
+			<input
+				type="checkbox"
+				checked={checked}
+				onChange={onChange}
+				className="sr-only peer"
+			/>
+			<span
+				className={`w-10 h-5 flex items-center rounded-full transition-colors duration-200 ${
+					checked ? "bg-orange-400" : "bg-gray-300"
+				}`}
+			>
+				<span
+					className={`h-4 w-4 bg-white rounded-full shadow transform transition-transform duration-200 ${
+						checked ? "translate-x-5" : "translate-x-1"
+					}`}
+				/>
+			</span>
+		</label>
+	);
+}
+
 const stats = [
 	{
 		label: "All listings",
 		value: 1400,
 		sub: "Across all vendors",
-		icon: (
-			<span className="text-blue-500 text-xl">&#128196;</span>
-		),
+		icon: "listings",
 	},
 	{
 		label: "Active listings",
 		value: 700,
 		sub: "Currently managing",
-		icon: (
-			<span className="text-blue-500 text-xl">&#128200;</span>
-		),
+		icon: "listings",
 	},
 	{
 		label: "Non-active listings",
 		value: 14,
 		sub: "",
-		icon: (
-			<span className="text-blue-500 text-xl">&#128683;</span>
-		),
+		icon: "non_active_listings",
 	},
 ];
 
@@ -122,6 +141,14 @@ const statusColors = {
 export default function ListingsPage() {
 	const [tab, setTab] = useState("All Listings");
 	const [showApprovals, setShowApprovals] = useState(false);
+	const [listingState, setListingState] = useState(listings);
+
+	// Handle toggle change
+	const handleToggle = (idx) => {
+		setListingState((prev) =>
+			prev.map((l, i) => (i === idx ? { ...l, active: !l.active } : l))
+		);
+	};
 
 	return (
 		<div className="flex min-h-screen bg-gray-50">
@@ -182,7 +209,7 @@ export default function ListingsPage() {
 								</tr>
 							</thead>
 							<tbody>
-								{listings
+								{listingState
 									.filter((l) => {
 										if (tab === "All Listings") return true;
 										if (tab === "Active Listings") return l.active;
@@ -202,29 +229,10 @@ export default function ListingsPage() {
 											<td className="py-2">{l.service}</td>
 											<td className="py-2">{l.serviceType}</td>
 											<td className="py-2">
-												<label className="inline-flex items-center cursor-pointer">
-													<input
-														type="checkbox"
-														checked={l.active}
-														readOnly
-														className="sr-only peer"
-													/>
-													<span
-														className={`w-10 h-5 flex items-center rounded-full transition-colors duration-200 ${
-															l.active
-																? "bg-orange-400"
-																: "bg-gray-300"
-														}`}
-													>
-														<span
-															className={`h-4 w-4 bg-white rounded-full shadow transform transition-transform duration-200 ${
-																l.active
-																	? "translate-x-5"
-																	: "translate-x-1"
-															}`}
-														/>
-													</span>
-												</label>
+												<StatusToggle
+													checked={l.active}
+													onChange={() => handleToggle(i)}
+												/>
 											</td>
 											<td className="py-2">
 												<button className="px-2 py-1 rounded hover:bg-gray-100">
