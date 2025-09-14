@@ -5,6 +5,7 @@ import BusinessSidebar from "@/lib/components/BusinessSidebar";
 import BusinessHeader from "@/lib/components/BusinessHeader";
 import AdminButton from "@/lib/ui/button";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
+import ViewDetailsModal from "@/lib/components/ViewDetailsModal";
 import { statusColors } from "../../../../lib/ui/statusColors";
 
 // Dummy notification data
@@ -67,6 +68,8 @@ const stats = [
 
 export default function NotificationPage() {
   const [tab, setTab] = useState("All Notifications");
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Tabs for filtering notifications
   const tabs = [
@@ -75,6 +78,16 @@ export default function NotificationPage() {
     "New Reservations",
     "Critical Alert"
   ];
+
+  const handleViewDetails = (notification) => {
+    setSelectedNotification(notification);
+    setModalOpen(true);
+  };
+
+  const handleMarkAsRead = (id) => {
+    console.log('Marking notification as read:', id);
+    // Add your mark as read logic here
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -131,7 +144,10 @@ export default function NotificationPage() {
                           <span className={`px-3 py-1 rounded-full border text-xs font-semibold ${statusColors[n.status]}`}>
                             {n.status}
                           </span>
-                          <button className="text-xs text-gray-500 hover:text-orange-500 flex items-center gap-1">
+                          <button 
+                            onClick={() => handleViewDetails(n)}
+                            className="text-xs text-gray-500 hover:text-orange-500 flex items-center gap-1"
+                          >
                             View details <span className="text-lg">&gt;</span>
                           </button>
                         </div>
@@ -157,6 +173,17 @@ export default function NotificationPage() {
           </div>
         </div>
       </div>
+      
+      {/* View Details Modal */}
+      <ViewDetailsModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Notification Details"
+        data={selectedNotification || {}}
+        type="notification"
+        showActions={true}
+        onMarkAsRead={handleMarkAsRead}
+      />
     </div>
   );
 }

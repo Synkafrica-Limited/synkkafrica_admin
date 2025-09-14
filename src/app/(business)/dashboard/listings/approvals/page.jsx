@@ -5,6 +5,7 @@ import BusinessSidebar from "@/lib/components/BusinessSidebar";
 import BusinessHeader from "@/lib/components/BusinessHeader";
 import AdminButton from "@/lib/ui/button";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
+import ViewDetailsModal from "@/lib/components/ViewDetailsModal";
 
 const stats = [
   { label: "Pending Approvals", value: 15, sub: "Awaiting review", icon: <span className="text-yellow-500 text-xl">⏳</span> },
@@ -98,6 +99,12 @@ const priorityColors = {
 export default function ListingApprovalsPage() {
   const [tab, setTab] = useState("All Requests");
   const [selectedApproval, setSelectedApproval] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleViewDetails = (approval) => {
+    setSelectedApproval(approval);
+    setModalOpen(true);
+  };
 
   const handleApprove = (id) => {
     console.log("Approve approval:", id);
@@ -205,7 +212,7 @@ export default function ListingApprovalsPage() {
                       <td className="py-3">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => setSelectedApproval(a)}
+                            onClick={() => handleViewDetails(a)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View Details"
                           >
@@ -247,104 +254,17 @@ export default function ListingApprovalsPage() {
             </div>
           </div>
 
-          {/* Approval Detail Modal */}
-          {selectedApproval && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      Approval Request Details
-                    </h3>
-                    <button
-                      onClick={() => setSelectedApproval(null)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Vendor</label>
-                        <p className="text-gray-800">{selectedApproval.vendor}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Email</label>
-                        <p className="text-gray-800">{selectedApproval.vendorEmail}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Service</label>
-                        <p className="text-gray-800">{selectedApproval.service}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Service Type</label>
-                        <p className="text-gray-800">{selectedApproval.serviceType}</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Request Type</label>
-                      <p className="text-gray-800">{selectedApproval.request}</p>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Description</label>
-                      <p className="text-gray-800">{selectedApproval.description}</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Date</label>
-                        <p className="text-gray-800">{selectedApproval.date}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Time</label>
-                        <p className="text-gray-800">{selectedApproval.time}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Priority</label>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[selectedApproval.priority]}`}>
-                          {selectedApproval.priority}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {selectedApproval.status === "Pending" && (
-                    <div className="flex gap-3 mt-6 pt-4 border-t">
-                      <AdminButton
-                        variant="primary"
-                        className="flex-1 bg-green-500 text-white border-green-500 flex items-center justify-center gap-2"
-                        onClick={() => {
-                          handleApprove(selectedApproval.id);
-                          setSelectedApproval(null);
-                        }}
-                      >
-                        <FaCheck />
-                        Approve Request
-                      </AdminButton>
-                      <AdminButton
-                        variant="secondary"
-                        className="flex-1 border-red-400 text-red-600 flex items-center justify-center gap-2"
-                        onClick={() => {
-                          handleReject(selectedApproval.id);
-                          setSelectedApproval(null);
-                        }}
-                      >
-                        <FaTimes />
-                        Reject Request
-                      </AdminButton>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* View Details Modal */}
+          <ViewDetailsModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title="Approval Request Details"
+            data={selectedApproval || {}}
+            type="approval"
+            showActions={true}
+            onApprove={handleApprove}
+            onReject={handleReject}
+          />
         </div>
       </div>
     </div>
