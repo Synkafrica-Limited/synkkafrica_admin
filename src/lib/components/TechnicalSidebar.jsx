@@ -1,17 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { FaHome, FaUsers, FaStore, FaBell, FaCreditCard, FaCog, FaSignOutAlt, FaList, FaComments } from "react-icons/fa";
+import { FaHome, FaUsers, FaStore, FaCog, FaSignOutAlt, FaList, FaChartBar, FaDatabase, FaShieldAlt, FaComments } from "react-icons/fa";
 
 const menuItems = [
-  { label: "Home", icon: <FaHome />, href: "/dashboard?type=business" },
-  { label: "Customers", icon: <FaUsers />, href: "/dashboard/customers" },
-  { label: "Vendors", icon: <FaStore />, href: "/dashboard/vendors" },
-  { label: "Notification", icon: <FaBell />, href: "/dashboard/notifications" },
-  { label: "Payment", icon: <FaCreditCard />, href: "/dashboard/finance/dashboard" },
-  { label: "Listings", icon: <FaList />, href: "/dashboard/listings" },
+  { label: "Home", icon: <FaHome />, href: "/dashboard?type=technical" },
+  { label: "Users", icon: <FaUsers />, href: "/technical/dashboard/users" },
+  { label: "Vendors", icon: <FaStore />, href: "/technical/dashboard/vendors" },
+  { label: "Listings", icon: <FaList />, href: "/technical/dashboard/listings" },
+  { label: "CMS", icon: <FaDatabase />, href: "/technical/dashboard/cms" },
+  { label: "Finance", icon: <FaChartBar />, href: "/technical/dashboard/finance" },
 ];
 
-export default function BusinessSidebar({ active, onLogout }) {
+export default function TechnicalSidebar({ active, onLogout }) {
   const [showDropdown, setShowDropdown] = useState(false);
   
   return (
@@ -20,7 +20,10 @@ export default function BusinessSidebar({ active, onLogout }) {
         {/* Logo */}
         <div className="flex items-center mb-8 px-2">
           <img src="/images/synkkafrica_logo_small.png" alt="Logo" className="w-8 h-8 mr-2" />
-          <span className="font-bold text-lg text-primary-600 hidden md:block">Synkkafrica</span>
+          <div className="hidden md:block">
+            <div className="font-bold text-lg text-primary-600">Synkkafrica</div>
+            <div className="text-xs text-gray-500">Technical Admin</div>
+          </div>
         </div>
         
         {/* Navigation */}
@@ -42,15 +45,15 @@ export default function BusinessSidebar({ active, onLogout }) {
       </div>
       
       {/* Bottom Section */}
-      <div className="space-y-2 pt-4">
+      <div className="space-y-2 border-t pt-4">
         {/* Profile */}
         <a 
-          href="/dashboard/profile" 
+          href="/technical/profile" 
           className="flex items-center px-2 md:px-4 py-2 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600"
-          title="Admin Profile"
+          title="Technical Admin Profile"
         >
           <img src="/images/synkkafrica_logo_small.png" alt="Admin" className="w-6 h-6 rounded-full flex-shrink-0" />
-          <span className="ml-2 hidden md:block">Admin user</span>
+          <span className="ml-2 hidden md:block">Tech Admin</span>
         </a>
         
         {/* Settings Dropdown */}
@@ -77,16 +80,16 @@ export default function BusinessSidebar({ active, onLogout }) {
           {showDropdown && (
             <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg z-50 border">
               <a 
-                href="/settings/team" 
+                href="/technical/settings/system" 
                 className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-t-lg transition-colors text-sm"
               >
-                Add Team Member
+                System Settings
               </a>
               <a 
-                href="/settings/team/assign" 
+                href="/technical/settings/security" 
                 className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm"
               >
-                Assign Role
+                Security Settings
               </a>
               <a 
                 href="/support" 
