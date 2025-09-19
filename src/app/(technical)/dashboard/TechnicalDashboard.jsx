@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FaHome, FaUsers, FaStore, FaChartBar, FaDatabase, FaShieldAlt } from "react-icons/fa";
+import { FaHome, FaUsers, FaStore, FaChartBar, FaList, FaClock, FaFileAlt, FaEye } from "react-icons/fa";
 import TechnicalSidebar from "@/lib/components/TechnicalSidebar";
 import TechnicalHeader from "@/lib/components/TechnicalHeader";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
@@ -9,37 +9,37 @@ import DashboardRecentActivityWidget from "@/views/layouts/widgets/DashboardRece
 import DashboardUserStatsWidget from "@/views/layouts/widgets/DashboardUserStatsWidget";
 
 export default function TechnicalDashboard() {
-    // Technical dashboard stats
+    // Technical dashboard stats - CMS focused
     const stats = [
-        { label: "System Health", value: "98.5%", icon: <FaShieldAlt className="text-green-500" />, color: "text-green-500" },
-        { label: "Active Users", value: 2847, icon: <FaUsers className="text-blue-500" />, color: "text-blue-500" },
-        { label: "Database Size", value: "2.4GB", icon: <FaDatabase className="text-purple-500" />, color: "text-purple-500" },
-        { label: "API Calls", value: "1.2M", icon: <FaChartBar className="text-orange-500" />, color: "text-orange-500" },
+        { label: "Total Listings", value: "1,247", icon: <FaList className="text-blue-500" />, color: "text-blue-500" },
+        { label: "Awaiting Approval", value: 23, icon: <FaClock className="text-orange-500" />, color: "text-orange-500" },
+        { label: "Active Users", value: 2847, icon: <FaUsers className="text-green-500" />, color: "text-green-500" },
+        { label: "CMS Pages", value: 18, icon: <FaFileAlt className="text-purple-500" />, color: "text-purple-500" },
     ];
 
     const chartData = [
-        [4, 8], [6, 6], [5, 7], [7, 5], [9, 4], [8, 3], [10, 2], [7, 6], [8, 7], [9, 5], [11, 4], [8, 3]
+        [45, 12], [52, 18], [48, 15], [65, 22], [58, 19], [72, 28], [69, 25], [75, 30], [82, 32], [78, 29], [85, 35], [89, 38]
     ];
     const chartLegend = [
-        { label: "System Load", color: "text-blue-900", bg: "bg-blue-900" },
-        { label: "Response Time", color: "text-orange-400", bg: "bg-orange-400" }
+        { label: "New Listings", color: "text-blue-900", bg: "bg-blue-900" },
+        { label: "Approvals", color: "text-orange-400", bg: "bg-orange-400" }
     ];
 
-    const activities = [
-        { text: "System backup completed successfully.", time: "10 mins ago" },
-        { text: "New user 'John Doe' registered.", time: "30 mins ago" },
-        { text: "Database optimization completed.", time: "1 hour ago" },
-        { text: "Security scan finished - no threats found.", time: "2 hours ago" },
-        { text: "API rate limit updated for vendor endpoints.", time: "3 hours ago" },
-        { text: "Cache cleared and rebuilt successfully.", time: "4 hours ago" },
-        { text: "Server maintenance completed.", time: "6 hours ago" },
+    const listingActivities = [
+        { text: "New listing 'Modern 2BR Apartment' submitted for review.", time: "5 mins ago" },
+        { text: "Listing 'Beach House Villa' approved by business team.", time: "15 mins ago" },
+        { text: "Vendor 'PropertyMax Ltd' added 3 new listings.", time: "30 mins ago" },
+        { text: "Listing 'Downtown Office Space' flagged for content review.", time: "45 mins ago" },
+        { text: "CMS page 'Terms of Service' updated.", time: "1 hour ago" },
+        { text: "Bulk listing import completed - 12 properties added.", time: "2 hours ago" },
+        { text: "Listing 'Luxury Penthouse' featured on homepage.", time: "3 hours ago" },
     ];
 
-    const systemStats = [
-        { value: "99.9%", label: "Uptime (Last 30 days)" },
-        { value: "156ms", label: "Average Response Time" },
-        { value: "2,847", label: "Active Sessions" },
-        { value: "45GB", label: "Available Storage" },
+    const listingStats = [
+        { value: "1,247", label: "Total Listings Added" },
+        { value: "23", label: "Pending Approvals" },
+        { value: "156", label: "Approved This Week" },
+        { value: "95.2%", label: "Approval Rate" },
     ];
 
     return (
@@ -53,17 +53,17 @@ export default function TechnicalDashboard() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 md:p-10">
                     <DashboardStatsWidget stats={stats} />
-                    <DashboardChartWidget title="System Performance" year={2025} data={chartData} legend={chartLegend} />
+                    <DashboardChartWidget title="Listing Analytics" year={2025} data={chartData} legend={chartLegend} />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DashboardRecentActivityWidget 
-                            title="System Activity" 
-                            description="Recent system events and operations." 
-                            activities={activities} 
+                            title="Recent Listing Activity" 
+                            description="Latest submissions and approvals from business team." 
+                            activities={listingActivities} 
                         />
                         <DashboardUserStatsWidget 
-                            title="System Statistics" 
-                            description="Key technical metrics and performance indicators." 
-                            stats={systemStats} 
+                            title="Listing Statistics" 
+                            description="Key metrics for listing management and approvals." 
+                            stats={listingStats} 
                         />
                     </div>
                 </div>

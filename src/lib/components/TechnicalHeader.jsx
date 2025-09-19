@@ -4,7 +4,7 @@ import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
 
 export default function TechnicalHeader({ title = "Technical Dashboard", subtitle = "System Administration" }) {
   return (
-    <header className="bg-white shadow-sm border-b px-4 md:px-10 py-4">
+    <header className="bg-white shadow-sm px-4 md:px-10 py-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-800">{title}</h1>

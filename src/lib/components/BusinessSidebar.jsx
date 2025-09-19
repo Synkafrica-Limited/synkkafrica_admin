@@ -83,13 +83,13 @@ export default function BusinessSidebar({ active, onLogout }) {
                 Add Team Member
               </a>
               <a 
-                href="/settings/team/assign" 
+                href="/settings/team/assign_role" 
                 className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm"
               >
                 Assign Role
               </a>
               <a 
-                href="/support" 
+                href="/settings/support" 
                 className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-b-lg transition-colors text-sm"
               >
                 Support Chat
