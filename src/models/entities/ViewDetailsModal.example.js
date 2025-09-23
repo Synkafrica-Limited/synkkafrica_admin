@@ -1,7 +1,7 @@
 // Example usage of ViewDetailsModal component in notifications page
 
 import React, { useState } from "react";
-import ViewDetailsModal from "@/lib/components/ViewDetailsModal";
+import ViewDetailsModal from "@/views/layouts/components/modals/ViewDetailsModal";
 
 // Example React component showing proper usage
 export default function ExamplePage() {

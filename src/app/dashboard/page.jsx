@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import BusinessDashboard from "../(business)/dashboard/BusinessDashboard";
-import TechnicalDashboard from "../(technical)/dashboard/TechnicalDashboard";
+import BusinessDashboard from "../dashboard/business/BusinessDashboard";
+import TechnicalDashboard from "../dashboard/technical/TechnicalDashboard";
 
 export default function DashboardPage() {
   const [userType, setUserType] = useState(null);

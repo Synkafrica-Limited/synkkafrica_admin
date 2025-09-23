@@ -1,7 +1,7 @@
 console.log('Support system test - checking ticket data');
 
 // Test the SupportController directly
-import { SupportController } from '../controllers/business/support.controller.js';
+import { SupportController } from './support.controller.js';
 
 const supportController = new SupportController();
 

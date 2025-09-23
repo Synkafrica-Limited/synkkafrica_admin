@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import AdminButton from '../../../lib/ui/button';
+import AdminButton from '../../../ui/button';
 
 export default function AdminAuth() {
 	const router = useRouter();
