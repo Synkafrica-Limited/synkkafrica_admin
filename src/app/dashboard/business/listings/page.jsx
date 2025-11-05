@@ -4,8 +4,8 @@ import { FaSearch, FaEye, FaEyeSlash, FaTrash, FaCheck, FaTimes, FaClock, FaStar
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 import AdminButton from "@/ui/button";
-import ConfirmDialog from "@/views/layouts/components/ConfirmDialog";
-import ApprovalDialog from "@/views/layouts/components/ApprovalDialog";
+import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
+import ApprovalDialog from "@/views/layouts/components/modals/ApprovalDialog";
 import { useToast } from "@/views/layouts/components/ToastContainer";
 import PreviewModal from "@/views/layouts/components/modals/PreviewModal";
 import { listings } from "@/models/entities/listing.entity";

@@ -10,7 +10,7 @@
 // ===================================
 
 import { useState } from 'react';
-import ConfirmDialog from '@/views/layouts/components/ConfirmDialog';
+import ConfirmDialog from '@/views/layouts/components/modals/ConfirmDialog';
 import { useToast } from '@/views/layouts/components/ToastContainer';
 
 function ExampleDeleteListing() {
@@ -90,7 +90,7 @@ function ExampleToastUsage() {
 // 3. APPROVAL DIALOG
 // ===================================
 
-import ApprovalDialog from '@/views/layouts/components/ApprovalDialog';
+import ApprovalDialog from '@/views/layouts/components/modals/ApprovalDialog';
 
 function ExampleApproval() {
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
