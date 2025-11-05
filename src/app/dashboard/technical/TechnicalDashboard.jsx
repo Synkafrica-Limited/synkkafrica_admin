@@ -53,7 +53,14 @@ export default function TechnicalDashboard() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 md:p-10">
                     <DashboardStatsWidget stats={stats} />
-                    <DashboardChartWidget title="Listing Analytics" year={2025} data={chartData} legend={chartLegend} />
+                    
+                    <DashboardChartWidget 
+                        title="Listing Analytics" 
+                        year={2025} 
+                        data={chartData.flat()}
+                        yearOptions={["2024", "2025"]}
+                    />
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DashboardRecentActivityWidget 
                             title="Recent Listing Activity" 

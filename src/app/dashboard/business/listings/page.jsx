@@ -1,444 +1,634 @@
 "use client";
 import React, { useState } from "react";
 import { FaSearch, FaEye, FaEyeSlash, FaTrash, FaCheck, FaTimes, FaClock, FaStar, FaDownload, FaFilter, FaStore, FaMapMarkerAlt } from "react-icons/fa";
-import BusinessSidebar from "@/views/layouts/components/BusinessSidebar";
-import BusinessHeader from "@/views/layouts/components/BusinessHeader";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 import AdminButton from "@/ui/button";
-
-const listings = [
-  {
-    id: "LST-001",
-    title: "Luxury Beach Resort Package",
-    category: "Accommodation",
-    vendor: "Beach Paradise Resort",
-    vendorId: "VND-002",
-    price: 299.99,
-    location: "Lagos, Nigeria",
-    status: "Active",
-    visibility: "Visible",
-    featured: true,
-    dateCreated: "2024-01-15",
-    bookings: 45,
-    views: 320,
-    rating: 4.8,
-    revenue: 13499.55
-  },
-  {
-    id: "LST-002",
-    title: "City Tour Adventure",
-    category: "Tours & Travel",
-    vendor: "City Tours Express",
-    vendorId: "VND-001",
-    price: 89.50,
-    location: "Abuja, Nigeria",
-    status: "Pending Review",
-    visibility: "Hidden",
-    featured: false,
-    dateCreated: "2024-01-14",
-    bookings: 12,
-    views: 85,
-    rating: 4.2,
-    revenue: 1074.00
-  },
-  {
-    id: "LST-003",
-    title: "Mountain Hiking Experience",
-    category: "Adventure & Sports",
-    vendor: "Peak Explorers",
-    vendorId: "VND-005",
-    price: 150.00,
-    location: "Jos, Nigeria",
-    status: "Active",
-    visibility: "Visible",
-    featured: true,
-    dateCreated: "2024-01-13",
-    bookings: 28,
-    views: 156,
-    rating: 4.6,
-    revenue: 4200.00
-  },
-  {
-    id: "LST-004",
-    title: "Cultural Heritage Tour",
-    category: "Tours & Travel",
-    vendor: "Heritage Tours Nigeria",
-    vendorId: "VND-004",
-    price: 75.00,
-    location: "Ife, Nigeria",
-    status: "Active",
-    visibility: "Hidden",
-    featured: false,
-    dateCreated: "2024-01-12",
-    bookings: 8,
-    views: 42,
-    rating: 4.1,
-    revenue: 600.00
-  },
-  {
-    id: "LST-005",
-    title: "Safari Wildlife Experience",
-    category: "Adventure & Sports",
-    vendor: "Safari Adventures Ltd",
-    vendorId: "VND-001",
-    price: 450.00,
-    location: "Cross River, Nigeria",
-    status: "Active",
-    visibility: "Visible",
-    featured: true,
-    dateCreated: "2024-01-11",
-    bookings: 67,
-    views: 580,
-    rating: 4.9,
-    revenue: 30150.00
-  },
-  {
-    id: "LST-006",
-    title: "Lagos Food Tours",
-    category: "Food & Dining",
-    vendor: "Lagos Food Tours",
-    vendorId: "VND-003",
-    price: 65.00,
-    location: "Lagos, Nigeria",
-    status: "Flagged",
-    visibility: "Hidden",
-    featured: false,
-    dateCreated: "2024-01-10",
-    bookings: 15,
-    views: 98,
-    rating: 3.8,
-    revenue: 975.00
-  }
-];
-
-const statusColors = {
-  Active: "bg-green-100 text-green-700 border-green-300",
-  Pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
-  Inactive: "bg-gray-100 text-gray-700 border-gray-300"
-};
-
-const statusIcons = {
-  Active: <FaCheck className="w-3 h-3" />,
-  Pending: <FaClock className="w-3 h-3" />,
-  Inactive: <FaTimes className="w-3 h-3" />
-};
+import ConfirmDialog from "@/views/layouts/components/ConfirmDialog";
+import ApprovalDialog from "@/views/layouts/components/ApprovalDialog";
+import { useToast } from "@/views/layouts/components/ToastContainer";
+import PreviewModal from "@/views/layouts/components/modals/PreviewModal";
+import { listings } from "@/models/entities/listing.entity";
 
 export default function ListingsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [visibilityFilter, setVisibilityFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [selectedListings, setSelectedListings] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
+  
+  // Dialog states
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showVisibilityDialog, setShowVisibilityDialog] = useState(false);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch = search === '' ||
+                         listing.title.toLowerCase().includes(search.toLowerCase()) ||
                          listing.vendor.toLowerCase().includes(search.toLowerCase()) ||
-                         listing.location.toLowerCase().includes(search.toLowerCase());
+                         listing.location.toLowerCase().includes(search.toLowerCase()) ||
+                         listing.id.toLowerCase().includes(search.toLowerCase());
     
     const matchesStatus = statusFilter === "All" || listing.status === statusFilter;
+    const matchesVisibility = visibilityFilter === "All" || listing.visibility === visibilityFilter;
     const matchesCategory = categoryFilter === "All" || listing.category === categoryFilter;
     
-    return matchesSearch && matchesStatus && matchesCategory;
+    return matchesSearch && matchesStatus && matchesVisibility && matchesCategory;
   });
 
-  const handleEdit = (id) => {
-    console.log('Editing listing:', id);
-    // Add edit logic here
+  const handleToggleVisibility = (id) => {
+    const listing = listings.find(l => l.id === id);
+    setSelectedListing(listing);
+    setShowVisibilityDialog(true);
+  };
+
+  const confirmToggleVisibility = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const action = selectedListing.visibility === 'Visible' ? 'hidden' : 'visible';
+      showSuccess(
+        'Visibility Updated',
+        `Listing "${selectedListing.title}" is now ${action}`
+      );
+      
+      setShowVisibilityDialog(false);
+      setSelectedListing(null);
+    } catch (error) {
+      showError('Error', 'Failed to update listing visibility');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = (id) => {
-    console.log('Deleting listing:', id);
-    // Add delete logic here
+    const listing = listings.find(l => l.id === id);
+    setSelectedListing(listing);
+    setShowDeleteDialog(true);
   };
 
-  const handleView = (id) => {
-    console.log('Viewing listing:', id);
-    // Add view logic here
-  };
-
-  const handleBulkDelete = () => {
-    console.log('Bulk deleting listings:', selectedListings);
-    // Add bulk delete logic here
-  };
-
-  const handleToggleStatus = (id, currentStatus) => {
-    console.log('Toggling status for listing:', id);
-    // Add status toggle logic here
-  };
-
-  // Stats for the dashboard widget
-  const stats = [
-    { 
-      label: "Total Listings", 
-      value: listings.length, 
-      sub: "All listings", 
-      icon: "list" 
-    },
-    { 
-      label: "Active Listings", 
-      value: listings.filter(l => l.status === 'Active').length, 
-      sub: "Currently live", 
-      icon: "check_circle" 
-    },
-    { 
-      label: "Pending Approval", 
-      value: listings.filter(l => l.status === 'Pending').length, 
-      sub: "Awaiting review", 
-      icon: "clock" 
-    },
-    { 
-      label: "Featured", 
-      value: listings.filter(l => l.featured).length, 
-      sub: "Premium listings", 
-      icon: "star" 
+  const confirmDelete = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      showSuccess(
+        'Listing Deleted',
+        `"${selectedListing.title}" has been permanently deleted`
+      );
+      
+      setShowDeleteDialog(false);
+      setSelectedListing(null);
+    } catch (error) {
+      showError('Error', 'Failed to delete listing');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
-  const columns = [
-    {
-      header: "Listing",
-      accessor: "title",
-      cell: (value, row) => (
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-orange-600 font-semibold text-xs sm:text-sm">
-              {value.split(' ').map(word => word[0]).join('').substring(0, 2)}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{value}</div>
-            <div className="text-xs sm:text-sm text-gray-500 truncate">{row.category}</div>
-            {row.featured && (
-              <span className="inline-block bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full mt-1">
-                Featured
-              </span>
-            )}
-          </div>
-        </div>
-      )
-    },
-    {
-      header: "Vendor",
-      accessor: "vendor",
-      cell: (value, row) => (
-        <div className="min-w-0">
-          <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{value}</div>
-          <div className="text-xs sm:text-sm text-gray-500 truncate">{row.location}</div>
-        </div>
-      )
-    },
-    {
-      header: "Price",
-      accessor: "price",
-      cell: (value) => (
-        <div className="font-medium text-green-600 text-sm sm:text-base">
-          ${value.toFixed(2)}
-        </div>
-      )
-    },
-    {
-      header: "Performance",
-      accessor: "bookings",
-      cell: (value, row) => (
-        <div className="text-sm sm:text-base">
-          <div className="font-medium text-gray-900">{value} bookings</div>
-          <div className="text-xs sm:text-sm text-gray-500">⭐ {row.rating}/5</div>
-        </div>
-      ),
-      // Hide on mobile, show on tablet and up
-      className: "hidden sm:table-cell"
-    },
-    {
-      header: "Date",
-      accessor: "dateCreated",
-      cell: (value) => (
-        <div className="text-sm text-gray-900">{value}</div>
-      ),
-      // Hide on mobile, show on tablet and up
-      className: "hidden md:table-cell"
-    },
-    {
-      header: "Status",
-      accessor: "status",
-      cell: (value) => (
-        <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full border text-xs font-semibold ${statusColors[value]}`}>
-          {statusIcons[value]}
-          <span className="hidden sm:inline">{value}</span>
-        </span>
-      )
-    },
-    {
-      header: "Actions",
-      accessor: "actions",
-      cell: (_, row) => (
-        <div className="flex gap-1 sm:gap-2">
-          <button 
-            onClick={() => handleView(row.id)}
-            className="text-blue-600 hover:text-blue-800 p-1"
-            title="View Details"
-          >
-            <FaEye className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button 
-            onClick={() => handleEdit(row.id)}
-            className="text-green-600 hover:text-green-800 p-1"
-            title="Edit Listing"
-          >
-            <FaEdit className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button 
-            onClick={() => handleDelete(row.id)}
-            className="text-red-600 hover:text-red-800 p-1"
-            title="Delete Listing"
-          >
-            <FaTrash className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-        </div>
-      )
+  const handleFeatureToggle = (id) => {
+    const listing = listings.find(l => l.id === id);
+    const action = listing.featured ? 'remove from' : 'add to';
+    
+    showInfo(
+      'Feature Status',
+      `"${listing.title}" ${action} featured listings`
+    );
+    
+    // Add feature toggle logic here
+  };
+
+  const handleApprove = (id) => {
+    const listing = listings.find(l => l.id === id);
+    setSelectedListing(listing);
+    setShowApprovalDialog(true);
+  };
+
+  const confirmApprove = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      showSuccess(
+        'Listing Approved',
+        `"${selectedListing.title}" is now live on the platform`
+      );
+      
+      setShowApprovalDialog(false);
+      setSelectedListing(null);
+    } catch (error) {
+      showError('Error', 'Failed to approve listing');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
-  const categories = ["All", "Accommodation", "Tours", "Adventure", "Cultural", "Wildlife"];
+  const handleReject = (reason) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      setTimeout(() => {
+        showWarning(
+          'Listing Rejected',
+          `"${selectedListing.title}" has been rejected. Vendor will be notified.`
+        );
+        
+        setShowApprovalDialog(false);
+        setSelectedListing(null);
+        setIsLoading(false);
+      }, 1000);
+    } catch (error) {
+      showError('Error', 'Failed to reject listing');
+      setIsLoading(false);
+    }
+  };
+
+  const handlePreview = (id) => {
+    const listing = listings.find(l => l.id === id);
+    setSelectedListing(listing);
+    setShowPreviewModal(true);
+  };
+
+  // Stats
+  const stats = {
+    total: listings.length,
+    active: listings.filter(l => l.status === 'Active').length,
+    pending: listings.filter(l => l.status === 'Pending Review').length,
+    visible: listings.filter(l => l.visibility === 'Visible').length,
+    revenue: listings.reduce((sum, l) => sum + l.revenue, 0)
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <div className="sticky top-0 h-screen">
         <BusinessSidebar active="Listings" />
       </div>
-      <div className="flex-1 flex flex-col h-screen">
-        {/* Header matching vendor dashboard */}
-        <div className="sticky top-0 z-30 bg-white border-b border-gray-200">
-          <div className="flex items-center justify-between px-6 md:px-10 py-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Listings</h1>
-              <p className="text-sm text-gray-500 mt-1">Create and manage your service listings</p>
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Header */}
+        <BusinessHeader title="Listings Management" subtitle="Manage and moderate vendor listings" />
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <FaStore className="text-blue-600" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Total Listings</h3>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</p>
+              <p className="text-xs text-gray-500">All vendor listings</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative hidden md:block">
-                <input
-                  type="text"
-                  placeholder="Search customers, etc."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-64"
-                />
-                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-green-50 rounded-lg">
+                  <FaCheck className="text-green-600" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Active</h3>
               </div>
-              <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold">
-                S
+              <p className="text-2xl font-bold text-gray-900 mb-1">{stats.active}</p>
+              <p className="text-xs text-gray-500">Live on platform</p>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-yellow-50 rounded-lg">
+                  <FaClock className="text-yellow-600" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Pending Review</h3>
               </div>
+              <p className="text-2xl font-bold text-gray-900 mb-1">{stats.pending}</p>
+              <p className="text-xs text-gray-500">Awaiting approval</p>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-purple-50 rounded-lg">
+                  <FaEye className="text-purple-600" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Visible</h3>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 mb-1">{stats.visible}</p>
+              <p className="text-xs text-gray-500">Public listings</p>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-orange-50 rounded-lg">
+                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Total Revenue</h3>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 mb-1">₦{stats.revenue.toLocaleString()}</p>
+              <p className="text-xs text-gray-500">From all listings</p>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-10">
-          {/* Filter tabs matching vendor dashboard */}
-          <div className="mb-6">
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => setCategoryFilter("All")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  categoryFilter === "All" 
-                    ? "bg-orange-500 text-white" 
-                    : "bg-white text-gray-700 border border-gray-300 hover:border-orange-500"
-                }`}
-              >
-                All ({listings.length})
-              </button>
-              {["Accommodation", "Tours", "Adventure", "Cultural"].map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setCategoryFilter(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    categoryFilter === category 
-                      ? "bg-orange-500 text-white" 
-                      : "bg-white text-gray-700 border border-gray-300 hover:border-orange-500"
-                  }`}
-                >
-                  {category} ({listings.filter(l => l.category === category).length})
+          {/* Filters and Search */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+              <div className="flex gap-3 flex-wrap">
+                <AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
+                  <FaDownload className="text-sm" />
+                  Export Data
+                </AdminButton>
+                <AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
+                  <FaFilter className="text-sm" />
+                  More Filters
+                </AdminButton>
+              </div>
+              <div className="flex gap-3 w-full lg:w-auto flex-wrap">
+                <div className="relative flex-1 lg:w-80">
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search listings, vendors..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex gap-4 mb-6 flex-wrap">
+              <div className="flex gap-2 flex-wrap">
+                <span className="text-sm font-medium text-gray-700 py-2">Status:</span>
+                {['All', 'Active', 'Pending Review', 'Flagged'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === status 
+                        ? "bg-orange-500 text-white" 
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <span className="text-sm font-medium text-gray-700 py-2">Visibility:</span>
+                {['All', 'Visible', 'Hidden'].map((visibility) => (
+                  <button
+                    key={visibility}
+                    onClick={() => setVisibilityFilter(visibility)}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      visibilityFilter === visibility 
+                        ? "bg-orange-500 text-white" 
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {visibility}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Listings Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Listing</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Visibility</th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredListings.map((listing) => (
+                    <tr key={listing.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 mb-1">{listing.title}</div>
+                            <div className="text-xs text-gray-500 mb-1">{listing.id}</div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span className="px-2 py-1 bg-gray-100 rounded">{listing.category}</span>
+                              {listing.featured && (
+                                <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded flex items-center gap-1">
+                                  <FaStar className="text-xs" />
+                                  Featured
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="font-medium text-gray-900">{listing.vendor}</div>
+                          <div className="text-xs text-gray-500">{listing.vendorId}</div>
+                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                            <FaMapMarkerAlt />
+                            {listing.location}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="font-bold text-lg text-gray-900">₦{listing.price.toLocaleString()}</div>
+                        <div className="text-xs text-gray-500">per booking</div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="space-y-1">
+                          <div className="text-sm text-gray-900">{listing.bookings} bookings</div>
+                          <div className="text-sm text-gray-500">{listing.views} views</div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <FaStar className="text-yellow-500 text-xs" />
+                            <span className="font-medium text-gray-900">{listing.rating}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        {listing.status === 'Active' && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+                            <FaCheck className="text-xs" />
+                            Active
+                          </span>
+                        )}
+                        {listing.status === 'Pending Review' && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium border border-yellow-200">
+                            <FaClock className="text-xs" />
+                            Pending
+                          </span>
+                        )}
+                        {listing.status === 'Flagged' && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium border border-red-200">
+                            <FaTimes className="text-xs" />
+                            Flagged
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={() => handleToggleVisibility(listing.id)}
+                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                            listing.visibility === 'Visible'
+                              ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                              : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          {listing.visibility === 'Visible' ? (
+                            <>
+                              <FaEye className="text-xs" />
+                              Visible
+                            </>
+                          ) : (
+                            <>
+                              <FaEyeSlash className="text-xs" />
+                              Hidden
+                            </>
+                          )}
+                        </button>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex gap-2">
+                          {listing.status === 'Pending Review' && (
+                            <>
+                              <button 
+                                onClick={() => handleApprove(listing.id)}
+                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                title="Approve Listing"
+                              >
+                                <FaCheck />
+                              </button>
+                              <button 
+                                onClick={() => handlePreview(listing.id)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                title="Preview Listing"
+                              >
+                                <FaEye />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleFeatureToggle(listing.id)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              listing.featured
+                                ? 'text-orange-600 hover:bg-orange-50'
+                                : 'text-gray-400 hover:bg-gray-50'
+                            }`}
+                            title={listing.featured ? "Remove Featured" : "Make Featured"}
+                          >
+                            <FaStar />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(listing.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                            title="Delete Listing"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">Showing {filteredListings.length} of {listings.length} listings</p>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  &lt; Previous
                 </button>
-              ))}
+                <button className="px-3 py-1 text-sm bg-orange-500 text-white rounded-lg">1</button>
+                <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">2</button>
+                <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  Next &gt;
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Listings Grid - similar to vendor dashboard cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings.map((listing) => (
-              <div key={listing.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
-                {/* Listing Image Placeholder */}
-                <div className="relative">
-                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  {listing.status === "Active" && (
-                    <span className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
-                      Active
-                    </span>
-                  )}
-                  {listing.featured && (
-                    <span className="absolute top-2 left-2 px-3 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full">
-                      Featured
-                    </span>
-                  )}
-                </div>
-
-                {/* Listing Details */}
-                <div className="p-4">
-                  <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{listing.title}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                    <span>{listing.category}</span>
-                    <span>•</span>
-                    <span>{listing.location}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl font-bold text-orange-500">
-                      ${listing.price.toFixed(2)}
-                    </span>
-                    <div className="flex items-center gap-1 text-yellow-500">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <span className="text-sm font-medium text-gray-700">{listing.rating}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <span>{listing.bookings} views</span>
-                    <span>{listing.bookings} bookings</span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(listing.id)}
-                      className="flex-1 px-3 py-2 bg-white border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-colors text-sm font-medium"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(listing.id)}
-                      className="px-3 py-2 bg-white border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      <FaTrash className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Add New Listing Button - Fixed at bottom right */}
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="fixed bottom-6 right-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-4 shadow-lg transition-all hover:shadow-xl"
-            title="Add New Listing"
-          >
-            <FaPlus className="w-6 h-6" />
-          </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {selectedListing && (
+        <ConfirmDialog
+          isOpen={showDeleteDialog}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setSelectedListing(null);
+          }}
+          onConfirm={confirmDelete}
+          title="Delete Listing"
+          message={`Are you sure you want to delete "${selectedListing.title}"? This action cannot be undone and all booking history will be lost.`}
+          type="danger"
+          confirmText="Yes, Delete"
+          cancelText="Cancel"
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* Visibility Toggle Dialog */}
+      {selectedListing && (
+        <ConfirmDialog
+          isOpen={showVisibilityDialog}
+          onClose={() => {
+            setShowVisibilityDialog(false);
+            setSelectedListing(null);
+          }}
+          onConfirm={confirmToggleVisibility}
+          title={`${selectedListing.visibility === 'Visible' ? 'Hide' : 'Show'} Listing`}
+          message={`Are you sure you want to ${selectedListing.visibility === 'Visible' ? 'hide' : 'show'} "${selectedListing.title}" ${selectedListing.visibility === 'Visible' ? 'from' : 'to'} customers?`}
+          type="warning"
+          confirmText="Confirm"
+          cancelText="Cancel"
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* Approval Dialog */}
+      {selectedListing && (
+        <ApprovalDialog
+          isOpen={showApprovalDialog}
+          onClose={() => {
+            setShowApprovalDialog(false);
+            setSelectedListing(null);
+          }}
+          onApprove={confirmApprove}
+          onReject={handleReject}
+          title="Review Listing"
+          itemName={selectedListing.title}
+          itemDetails={{
+            vendor: selectedListing.vendor,
+            category: selectedListing.category,
+            price: `₦${selectedListing.price.toLocaleString()}`,
+            location: selectedListing.location
+          }}
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {selectedListing && (
+        <PreviewModal
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setSelectedListing(null);
+          }}
+          title="Listing Preview"
+          size="lg"
+          footer={
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setSelectedListing(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+              {selectedListing.status === 'Pending Review' && (
+                <button
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    handleApprove(selectedListing.id);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                >
+                  <FaCheck />
+                  Approve Listing
+                </button>
+              )}
+            </div>
+          }
+        >
+          <div className="space-y-6">
+            {/* Listing Image Placeholder */}
+            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+              <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+
+            {/* Listing Details */}
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedListing.title}</h3>
+              <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
+                <span className="px-3 py-1 bg-gray-100 rounded-full">{selectedListing.category}</span>
+                <span className="flex items-center gap-1">
+                  <FaMapMarkerAlt />
+                  {selectedListing.location}
+                </span>
+                <span className="flex items-center gap-1">
+                  <FaStar className="text-yellow-500" />
+                  {selectedListing.rating}
+                </span>
+              </div>
+            </div>
+
+            {/* Vendor Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 mb-3">Vendor Information</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-xs text-gray-500 uppercase">Vendor Name</span>
+                  <p className="text-sm font-medium text-gray-900">{selectedListing.vendor}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase">Vendor ID</span>
+                  <p className="text-sm font-medium text-gray-900">{selectedListing.vendorId}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing & Performance */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="text-sm font-medium text-gray-600 mb-2">Price</h4>
+                <p className="text-3xl font-bold text-green-700">₦{selectedListing.price.toLocaleString()}</p>
+                <p className="text-xs text-gray-600 mt-1">per booking</p>
+              </div>
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h4 className="text-sm font-medium text-gray-600 mb-2">Performance</h4>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-900">{selectedListing.bookings} bookings</p>
+                  <p className="text-sm text-gray-900">{selectedListing.views} views</p>
+                  <p className="text-sm text-gray-900">₦{selectedListing.revenue.toLocaleString()} revenue</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Description Placeholder */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                This is a preview of the listing. The actual description and details would be displayed here.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </p>
+            </div>
+          </div>
+        </PreviewModal>
+      )}
     </div>
   );
 }

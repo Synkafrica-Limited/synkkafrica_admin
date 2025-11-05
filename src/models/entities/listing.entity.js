@@ -1,28 +1,105 @@
-/**
- * Listing Entity - Represents a listing (legacy support for existing code)
- * This class is maintained for backward compatibility and delegates to ServiceEntity
- */
-import { ServiceEntity } from './service.entity.js';
-
-export class ListingEntity extends ServiceEntity {
-    constructor(data = {}) {
-        super(data);
-        // Add any listing-specific properties here if needed
-        this.type = 'listing';
-    }
-
-    // Override or add listing-specific methods here if needed
-    static fromService(service) {
-        const listingData = service.toJSON();
-        return new ListingEntity(listingData);
-    }
-
-    toListing() {
-        return {
-            ...this.toJSON(),
-            type: 'listing'
-        };
-    }
-}
-
-export default ListingEntity;
+"use client";
+export const listings = [
+  {
+    id: "LST-001",
+    title: "Luxury Beach Resort Package",
+    category: "Accommodation",
+    vendor: "Beach Paradise Resort",
+    vendorId: "VND-002",
+    price: 299.99,
+    location: "Lagos, Nigeria",
+    status: "Active",
+    visibility: "Visible",
+    featured: true,
+    dateCreated: "2024-01-15",
+    bookings: 45,
+    views: 320,
+    rating: 4.8,
+    revenue: 13499.55
+  },
+  {
+    id: "LST-002",
+    title: "City Tour Adventure",
+    category: "Tours & Travel",
+    vendor: "City Tours Express",
+    vendorId: "VND-001",
+    price: 89.50,
+    location: "Abuja, Nigeria",
+    status: "Pending Review",
+    visibility: "Hidden",
+    featured: false,
+    dateCreated: "2024-01-14",
+    bookings: 12,
+    views: 85,
+    rating: 4.2,
+    revenue: 1074.00
+  },
+  {
+    id: "LST-003",
+    title: "Mountain Hiking Experience",
+    category: "Adventure & Sports",
+    vendor: "Peak Explorers",
+    vendorId: "VND-005",
+    price: 150.00,
+    location: "Jos, Nigeria",
+    status: "Active",
+    visibility: "Visible",
+    featured: true,
+    dateCreated: "2024-01-13",
+    bookings: 28,
+    views: 156,
+    rating: 4.6,
+    revenue: 4200.00
+  },
+  {
+    id: "LST-004",
+    title: "Cultural Heritage Tour",
+    category: "Tours & Travel",
+    vendor: "Heritage Tours Nigeria",
+    vendorId: "VND-004",
+    price: 75.00,
+    location: "Ife, Nigeria",
+    status: "Active",
+    visibility: "Hidden",
+    featured: false,
+    dateCreated: "2024-01-12",
+    bookings: 8,
+    views: 42,
+    rating: 4.1,
+    revenue: 600.00
+  },
+  {
+    id: "LST-005",
+    title: "Safari Wildlife Experience",
+    category: "Adventure & Sports",
+    vendor: "Safari Adventures Ltd",
+    vendorId: "VND-001",
+    price: 450.00,
+    location: "Cross River, Nigeria",
+    status: "Active",
+    visibility: "Visible",
+    featured: true,
+    dateCreated: "2024-01-11",
+    bookings: 67,
+    views: 580,
+    rating: 4.9,
+    revenue: 30150.00
+  },
+  {
+    id: "LST-006",
+    title: "Lagos Food Tours",
+    category: "Food & Dining",
+    vendor: "Lagos Food Tours",
+    vendorId: "VND-003",
+    price: 65.00,
+    location: "Lagos, Nigeria",
+    status: "Flagged",
+    visibility: "Hidden",
+    featured: false,
+    dateCreated: "2024-01-10",
+    bookings: 15,
+    views: 98,
+    rating: 3.8,
+    revenue: 975.00
+  }
+];

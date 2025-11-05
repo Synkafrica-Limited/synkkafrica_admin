@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
-import VendorDetailsModal from "@/views/layouts/components/VendorDetailsModal";
+import VendorDetailsModal from "@/views/layouts/components/modals/VendorDetailsModal";
 import AdminButton from "@/ui/button";
 import { vendors } from "../../../..//models/entities/vendor.entity";
 import { FaSearch, FaEye, FaCheck, FaTimes, FaDownload, FaStore, FaClock, FaExclamationCircle } from 'react-icons/fa';
