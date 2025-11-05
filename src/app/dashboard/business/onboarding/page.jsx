@@ -2,8 +2,8 @@
 "use client";
 
 import React from "react";
-import BusinessSidebar from "@/views/layouts/components/BusinessSidebar";
-import BusinessHeader from "@/views/layouts/components/BusinessHeader";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 import OnboardingActions from "@/views/layouts/components/OnboardingActions";
 
 export default function BusinessOnboarding() {

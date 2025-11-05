@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import BusinessSidebar from "@/views/layouts/components/BusinessSidebar";
-import BusinessHeader from "@/views/layouts/components/BusinessHeader";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 import EditProfile from "@/views/layouts/components/EditProfile";
 import AdminButton from "@/ui/button";
 
@@ -19,11 +19,15 @@ export default function BusinessProfile() {
     setShowEdit(false);
   };
   return (
-  <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 ">
-      <BusinessSidebar active="Admin user" />
-  <div className="flex-1 flex flex-col p-4 md:p-10">
-        <BusinessHeader title="Profile" subtitle="Get the best of admin dashboard by updating your details" />
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mt-4 md:mt-8">
+<div className="flex min-h-screen bg-gray-50">
+      <div className="sticky top-0 h-screen">
+        <BusinessSidebar active="Vendors" />
+      </div>
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Header */}
+        <BusinessHeader title="Profile" subtitle="Manage your profile information" />
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mt-4 md:mt-8 px-10">
           {/* Left profile card */}
           <div className="bg-white rounded-xl shadow p-4 md:p-8 flex flex-col items-center justify-center">
             <div className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-500 mb-4">TM</div>

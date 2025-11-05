@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { FaHome, FaUsers, FaStore, FaChartBar, FaList, FaClock, FaFileAlt, FaEye } from "react-icons/fa";
-import TechnicalSidebar from "@/views/layouts/components/TechnicalSidebar";
-import TechnicalHeader from "@/views/layouts/components/TechnicalHeader";
+import TechnicalSidebar from "@/views/layouts/components/technical/TechnicalSidebar";
+import TechnicalHeader from "@/views/layouts/components/technical/TechnicalHeader";
 import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
 import DashboardChartWidget from "@/views/layouts/widgets/DashboardChartWidget";
 import DashboardRecentActivityWidget from "@/views/layouts/widgets/DashboardRecentActivityWidget";

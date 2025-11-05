@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown, FaEllipsisV } from "react-icons/fa";
 
 export default function DataTable({ 
   data = [], 
@@ -12,10 +12,14 @@ export default function DataTable({
   searchTerm = "",
   onSearchChange = () => {},
   pagination = true,
-  itemsPerPage = 10 
+  itemsPerPage = 10,
+  responsive = true,
+  emptyMessage = "No data available",
+  loading = false
 }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [currentPage, setCurrentPage] = useState(1);
+  const [showMobileActions, setShowMobileActions] = useState({});
 
   // Handle sorting
   const handleSort = (key) => {
@@ -79,17 +83,38 @@ export default function DataTable({
       <FaSortDown className="text-orange-600" />;
   };
 
+  const toggleMobileActions = (rowId) => {
+    setShowMobileActions(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
+  };
+
+  // Filter columns for mobile view
+  const mobileColumns = columns.filter(col => col.showOnMobile !== false);
+  const desktopOnlyColumns = columns.filter(col => col.showOnMobile === false);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+        <p className="text-gray-500 mt-2">Loading...</p>
+      </div>
+    );
+  }
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-gray-500">No data available</p>
+        <p className="text-gray-500">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Desktop Table */}
+      <div className={`${responsive ? 'hidden lg:block' : ''} overflow-x-auto`}>
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -109,7 +134,7 @@ export default function DataTable({
               {columns.map((column) => (
                 <th
                   key={column.accessor}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 ${column.className || ''}`}
                   onClick={() => column.sortable !== false && handleSort(column.accessor)}
                 >
                   <div className="flex items-center space-x-1">
@@ -137,7 +162,7 @@ export default function DataTable({
                   </td>
                 )}
                 {columns.map((column) => (
-                  <td key={column.accessor} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td key={column.accessor} className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${column.cellClassName || ''}`}>
                     {column.cell ? 
                       column.cell(row[column.accessor], row) : 
                       row[column.accessor]
@@ -149,6 +174,72 @@ export default function DataTable({
           </tbody>
         </table>
       </div>
+
+      {/* Mobile Cards */}
+      {responsive && (
+        <div className="lg:hidden">
+          {currentData.map((row, index) => (
+            <div key={row.id || index} className={`border-b border-gray-200 p-4 ${selectedRows.includes(row.id) ? 'bg-orange-50' : ''}`}>
+              {selectable && (
+                <div className="flex items-center mb-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.includes(row.id)}
+                    onChange={(e) => handleSelectRow(row.id, e.target.checked)}
+                    className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 mr-2"
+                  />
+                  <span className="text-sm text-gray-500">Select item</span>
+                </div>
+              )}
+              
+              {/* Primary column (first mobile column) */}
+              {mobileColumns[0] && (
+                <div className="mb-3">
+                  {mobileColumns[0].cell ? 
+                    mobileColumns[0].cell(row[mobileColumns[0].accessor], row) : 
+                    <div className="font-medium text-gray-900">{row[mobileColumns[0].accessor]}</div>
+                  }
+                </div>
+              )}
+              
+              {/* Secondary information */}
+              <div className="space-y-2">
+                {mobileColumns.slice(1).map((column) => (
+                  <div key={column.accessor} className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-medium">{column.header}:</span>
+                    <span className="text-gray-900">
+                      {column.cell ? 
+                        column.cell(row[column.accessor], row) : 
+                        row[column.accessor]
+                      }
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Actions for mobile */}
+              {columns.find(col => col.accessor === 'actions') && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500 font-medium">Actions</span>
+                    <button
+                      onClick={() => toggleMobileActions(row.id)}
+                      className="p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <FaEllipsisV />
+                    </button>
+                  </div>
+                  {showMobileActions[row.id] && (
+                    <div className="mt-2">
+                      {columns.find(col => col.accessor === 'actions').cell(null, row)}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {pagination && totalPages > 1 && (
         <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">

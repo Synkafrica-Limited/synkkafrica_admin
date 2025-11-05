@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import BusinessSidebar from "@/views/layouts/components/BusinessSidebar";
-import BusinessHeader from "@/views/layouts/components/BusinessHeader";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 
 const roles = [
   { label: "Customer Support", value: "customer_support" },

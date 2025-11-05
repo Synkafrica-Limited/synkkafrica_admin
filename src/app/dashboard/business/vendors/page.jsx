@@ -1,142 +1,286 @@
 "use client";
 import React, { useState } from "react";
-import BusinessSidebar from "@/lib/components/BusinessSidebar";
-import BusinessHeader from "@/lib/components/BusinessHeader";
-import AdminButton from "@/lib/ui/button";
-import { vendors } from "@/models/entities/vendor.entity";
-import { statusColors } from "../../../../lib/ui/statusColors";
-import DashboardStatsWidget from "@/views/layouts/widgets/DashboardStatsWidget";
-import DashboardUserStatsWidget from "@/views/layouts/widgets/DashboardUserStatsWidget";
-import DashboardRecentActivityWidget from "@/views/layouts/widgets/DashboardRecentActivityWidget";
-import { FaPlus, FaMoneyCheckAlt, FaDownload } from "react-icons/fa";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import VendorDetailsModal from "@/views/layouts/components/VendorDetailsModal";
+import AdminButton from "@/ui/button";
+import { vendors } from "../../../..//models/entities/vendor.entity";
+import { FaSearch, FaEye, FaCheck, FaTimes, FaDownload, FaStore, FaClock, FaExclamationCircle } from 'react-icons/fa';
 
 export default function VendorsPage() {
-  const [search, setSearch] = useState("");
-  const [actionOpen, setActionOpen] = useState(-1);
+	const [search, setSearch] = useState("");
+	const [statusFilter, setStatusFilter] = useState('All');
+	const [selectedVendor, setSelectedVendor] = useState(null);
+	const [showModal, setShowModal] = useState(false);
 
-  const stats = [
-    { label: "Total vendors", value: 400, sub: "+10% from last month", icon: "users" },
-    { label: "Active vendors", value: 320, sub: "+8% from last month", icon: "user" },
-    { label: "New vendors", value: 50, sub: "+5% from last month", icon: "users" },
-    { label: "Avg. rating", value: "4.7", sub: "+0.2 from last month", icon: "ratings" },
-  ];
+	// Filter vendors
+	const filteredVendors = vendors.filter(vendor => {
+		const matchesSearch = search === '' || 
+			vendor.businessName.toLowerCase().includes(search.toLowerCase()) ||
+			vendor.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+			vendor.email.toLowerCase().includes(search.toLowerCase()) ||
+			vendor.id.toLowerCase().includes(search.toLowerCase()) ||
+			vendor.category.toLowerCase().includes(search.toLowerCase());
+		
+		const matchesStatus = statusFilter === 'All' || vendor.status === statusFilter;
+		
+		return matchesSearch && matchesStatus;
+	});
 
-  const userStats = [
-    { label: "New Vendors (Last 30 days)", value: 50 },
-    { label: "Active Vendors", value: 320 },
-    { label: "Total Vendors", value: 400 },
-    { label: "Average Rating", value: "4.7" },
-  ];
+	const handleViewDetails = (vendor) => {
+		setSelectedVendor(vendor);
+		setShowModal(true);
+	};
 
-  const recentActivity = [
-    { icon: "&#9888;", text: "Vendor John added a new listing.", time: "5 mins ago" },
-    { icon: "&#9888;", text: "Vendor Temi updated business info.", time: "1 hour ago" },
-    { icon: "&#9888;", text: "Vendor Femi received a booking.", time: "2 hours ago" },
-    { icon: "&#9888;", text: "Vendor Gaius responded to a query.", time: "1 day ago" },
-    { icon: "&#9888;", text: "Vendor Ezra joined the platform.", time: "3 days ago" },
-    { icon: "&#9888;", text: "Vendor Paul updated payout details.", time: "4 days ago" },
-    { icon: "&#9888;", text: "Vendor Dammy received a review.", time: "1 week ago" },
-  ];
+	const handleApprove = (vendorId) => {
+		console.log('Approving vendor:', vendorId);
+		// Add approval logic here
+	};
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      <BusinessSidebar active="Vendors" />
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <BusinessHeader title="Vendor List" subtitle="Overview of all vendors and their activities" />
-        <div className="p-4 md:p-10">
-          <DashboardStatsWidget stats={stats} />
-          <div className="bg-white rounded-xl shadow p-6 mb-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
-              <div className="flex gap-2">
-                <AdminButton variant="primary" className="px-4 py-2 bg-primary-500 text-white font-medium border-orange-500 flex items-center gap-2">
-                  <FaPlus className="text-md" />
-                  Add New Vendor
-                </AdminButton>
-                <AdminButton variant="secondary" className="px-4 py-2 border-primary-400 text-orange-500 font-medium flex items-center gap-2">
-                  <FaMoneyCheckAlt className="text-md" />
-                  Payouts
-                </AdminButton>
-                <AdminButton variant="secondary" className="px-4 py-2 border-primary-400 text-orange-500 font-medium flex items-center gap-2">
-                  <FaDownload className="text-md" />
-                  Export Data
-                </AdminButton>
-              </div>
-              <input
-                type="text"
-                placeholder="Search vendors"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300 w-full md:w-64"
-              />
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-500">
-                    <th className="py-2">Vendor Name</th>
-                    <th className="py-2">Contact Details</th>
-                    <th className="py-2">Listings</th>
-                    <th className="py-2">Last Activity</th>
-                    <th className="py-2">Status</th>
-                    <th className="py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vendors.filter(v => v.name.toLowerCase().includes(search.toLowerCase())).map((v, i) => (
-                    <tr key={i} className="border-b last:border-b-0">
-                      <td className="py-2 flex items-center gap-2">
-                        <img src={v.avatar || "https://randomuser.me/api/portraits/men/32.jpg"} alt={v.name} className="w-8 h-8 rounded-full" />
-                        <span>{v.name}</span>
-                      </td>
-                      <td className="py-2">
-                        <div>{v.email}</div>
-                        <div className="text-xs text-gray-400">{v.phone}</div>
-                      </td>
-                      <td className="py-2">{v.listings}</td>
-                      <td className="py-2">{v.lastActivity}</td>
-                      <td className="py-2">
-                        <span className={`px-3 py-1 rounded-full border text-xs font-semibold ${statusColors[v.status]}`}>{v.status}</span>
-                      </td>
-                      <td className="py-2 relative">
-                        <button onClick={() => setActionOpen(actionOpen === i ? -1 : i)} className="px-2 py-1 rounded hover:bg-gray-100">
-                          <span className="text-xl">≡</span>
-                        </button>
-                        {actionOpen === i && (
-                          <div className="absolute right-0 mt-2 w-32 bg-white rounded shadow z-10">
-                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-orange-50">Send Message</button>
-                            <button className="block w-full text-left px-4 py-2 text-sm hover:bg-orange-50">Deactivate</button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
-                <span>Showing 1 to 6 of 20 results</span>
-                <span>
-                  <button className="px-2">&lt; Previous</button>
-                  <span className="mx-2">1</span>
-                  <button className="px-2">2</button>
-                  <button className="px-2">Next &gt;</button>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DashboardRecentActivityWidget
-              title="Recent Activity"
-              description="Latest interactions and changes in vendor profiles."
-              activities={recentActivity}
-            />
-            <DashboardUserStatsWidget
-              title="Vendor Statistics"
-              description="Key insights into your vendor base."
-              stats={userStats}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+	const handleReject = (vendorId) => {
+		console.log('Rejecting vendor:', vendorId);
+		// Add rejection logic here
+	};
+
+	// Stats
+	const stats = {
+		total: vendors.length,
+		pending: vendors.filter(v => v.status === 'Pending Approval').length,
+		approved: vendors.filter(v => v.status === 'Approved').length,
+		rejected: vendors.filter(v => v.status === 'Rejected').length,
+	};
+
+	return (
+		<div className="flex min-h-screen bg-gray-50">
+			<div className="sticky top-0 h-screen">
+				<BusinessSidebar active="Vendors" />
+			</div>
+			<div className="flex-1 flex flex-col min-h-screen">
+				{/* Header */}
+				<BusinessHeader title="Vendor Management" subtitle="Review and manage vendor applications" />
+
+				<div className="flex-1 overflow-y-auto p-6">
+					{/* Stats Cards */}
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+						<div className="bg-white rounded-lg border border-gray-200 p-5">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="p-2 bg-blue-50 rounded-lg">
+									<FaStore className="text-blue-600" />
+								</div>
+								<h3 className="text-sm font-medium text-gray-600">Total Vendors</h3>
+							</div>
+							<p className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</p>
+							<p className="text-xs text-gray-500">All registered vendors</p>
+						</div>
+
+						<div className="bg-white rounded-lg border border-gray-200 p-5">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="p-2 bg-yellow-50 rounded-lg">
+									<FaClock className="text-yellow-600" />
+								</div>
+								<h3 className="text-sm font-medium text-gray-600">Pending Approval</h3>
+							</div>
+							<p className="text-2xl font-bold text-gray-900 mb-1">{stats.pending}</p>
+							<p className="text-xs text-gray-500">Awaiting verification</p>
+						</div>
+
+						<div className="bg-white rounded-lg border border-gray-200 p-5">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="p-2 bg-green-50 rounded-lg">
+									<FaCheck className="text-green-600" />
+								</div>
+								<h3 className="text-sm font-medium text-gray-600">Approved</h3>
+							</div>
+							<p className="text-2xl font-bold text-gray-900 mb-1">{stats.approved}</p>
+							<p className="text-xs text-gray-500">Active vendors</p>
+						</div>
+
+						<div className="bg-white rounded-lg border border-gray-200 p-5">
+							<div className="flex items-center gap-3 mb-3">
+								<div className="p-2 bg-red-50 rounded-lg">
+									<FaExclamationCircle className="text-red-600" />
+								</div>
+								<h3 className="text-sm font-medium text-gray-600">Rejected</h3>
+							</div>
+							<p className="text-2xl font-bold text-gray-900 mb-1">{stats.rejected}</p>
+							<p className="text-xs text-gray-500">Failed verification</p>
+						</div>
+					</div>
+
+					{/* Export Button and Search */}
+					<div className="bg-white rounded-lg border border-gray-200 p-6">
+						<div className="flex items-center justify-between mb-6">
+							<div className="flex gap-3">
+								<AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
+									<FaDownload className="text-sm" />
+									Export Data
+								</AdminButton>
+							</div>
+							<div className="flex gap-3">
+								<div className="relative w-80">
+									<FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+									<input
+										type="text"
+										placeholder="Search vendors..."
+										className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+										value={search}
+										onChange={(e) => setSearch(e.target.value)}
+									/>
+								</div>
+								<select
+									value={statusFilter}
+									onChange={(e) => setStatusFilter(e.target.value)}
+									className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+								>
+									<option value="All">All Status ({vendors.length})</option>
+									<option value="Pending Approval">Pending ({stats.pending})</option>
+									<option value="Approved">Approved ({stats.approved})</option>
+									<option value="Under Review">Under Review</option>
+									<option value="Rejected">Rejected ({stats.rejected})</option>
+								</select>
+							</div>
+						</div>
+
+						{/* Table */}
+						<div className="overflow-x-auto">
+							<table className="w-full">
+								<thead>
+									<tr className="border-b border-gray-200">
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Onboarding Date</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Verification</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+										<th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-gray-200">
+									{filteredVendors.map((vendor) => (
+										<tr key={vendor.id} className="hover:bg-gray-50 transition-colors">
+											<td className="py-4 px-4">
+												<div>
+													<div className="font-medium text-gray-900">{vendor.businessName}</div>
+													<div className="text-xs text-gray-500">{vendor.id}</div>
+												</div>
+											</td>
+											<td className="py-4 px-4">
+												<div>
+													<div className="text-sm text-gray-900">{vendor.ownerName}</div>
+													<div className="text-xs text-gray-500">{vendor.email}</div>
+													<div className="text-xs text-gray-500">{vendor.phone}</div>
+												</div>
+											</td>
+											<td className="py-4 px-4">
+												<span className="text-sm text-gray-700">{vendor.category}</span>
+											</td>
+											<td className="py-4 px-4">
+												<span className="text-sm text-gray-600">{vendor.location}</span>
+											</td>
+											<td className="py-4 px-4">
+												<span className="text-sm text-gray-600">{vendor.onboardingDate}</span>
+											</td>
+											<td className="py-4 px-4">
+												<div>
+													<div className="text-sm text-gray-700">{vendor.verificationStatus}</div>
+													<div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+														<div 
+															className="bg-orange-500 h-1.5 rounded-full" 
+															style={{ width: `${vendor.completionPercentage}%` }}
+														></div>
+													</div>
+													<div className="text-xs text-gray-500 mt-0.5">{vendor.completionPercentage}% complete</div>
+												</div>
+											</td>
+											<td className="py-4 px-4">
+												{vendor.status === 'Approved' && (
+													<span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+														<FaCheck className="text-xs" />
+														Approved
+													</span>
+												)}
+												{vendor.status === 'Pending Approval' && (
+													<span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium border border-yellow-200">
+														<FaClock className="text-xs" />
+														Pending
+													</span>
+												)}
+												{vendor.status === 'Under Review' && (
+													<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-200">
+														Under Review
+													</span>
+												)}
+												{vendor.status === 'Rejected' && (
+													<span className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium border border-red-200">
+														<FaTimes className="text-xs" />
+														Rejected
+													</span>
+												)}
+											</td>
+											<td className="py-4 px-4">
+												<div className="flex gap-2">
+													<button 
+														onClick={() => handleViewDetails(vendor)}
+														className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+														title="View Details"
+													>
+														<FaEye />
+													</button>
+													{vendor.status === 'Pending Approval' && (
+														<>
+															<button 
+																onClick={() => handleApprove(vendor.id)}
+																className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+																title="Approve"
+															>
+																<FaCheck />
+															</button>
+															<button 
+																onClick={() => handleReject(vendor.id)}
+																className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+																title="Reject"
+															>
+																<FaTimes />
+															</button>
+														</>
+													)}
+												</div>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+
+						{/* Pagination */}
+						<div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+							<p className="text-sm text-gray-600">Showing 1 to {filteredVendors.length} of {vendors.length} results</p>
+							<div className="flex items-center gap-2">
+								<button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+									&lt; Previous
+								</button>
+								<button className="px-3 py-1 text-sm bg-orange-500 text-white rounded-lg">1</button>
+								<button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">2</button>
+								<button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+									Next &gt;
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Vendor Details Modal */}
+			<VendorDetailsModal 
+				vendor={selectedVendor}
+				onClose={() => {
+					setShowModal(false);
+					setSelectedVendor(null);
+				}}
+				onApprove={handleApprove}
+				onReject={handleReject}
+			/>
+		</div>
+	);
 }

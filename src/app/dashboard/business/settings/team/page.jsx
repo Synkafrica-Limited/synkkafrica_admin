@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import AdminButton from "@/ui/button";
-import BusinessSidebar from "@/views/layouts/components/BusinessSidebar";
-import BusinessHeader from "@/views/layouts/components/BusinessHeader";
+import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
+import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 
 const dummyUser = {
   name: "Faluyi Temidayo",
