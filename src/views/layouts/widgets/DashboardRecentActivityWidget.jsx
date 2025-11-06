@@ -1,19 +1,45 @@
+"use client";
 import React from "react";
 
-export default function DashboardRecentActivityWidget() {
-  return (
-    <div className="bg-white rounded-xl shadow p-4 flex-1 mb-6">
-      <div className="font-semibold text-gray-800 mb-2">Recent Activity</div>
-      <div className="text-gray-500 text-sm mb-4">Latest interactions and changes in customer profiles.</div>
-      <ul className="space-y-2">
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Emmanuel created a new booking for luxury sedan. <span className="text-gray-400 ml-auto">2 mins ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Paul updated hiss contact phone number. <span className="text-gray-400 ml-auto">1 hour ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Temi completed a trip. <span className="text-gray-400 ml-auto">6 hour ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Dammy created a new booking for laundry <span className="text-gray-400 ml-auto">12 hour ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Ezra created a new booking for dining. <span className="text-gray-400 ml-auto">2 days ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> Gaius requested a refund. <span className="text-gray-400 ml-auto">3 days ago</span></li>
-        <li className="flex items-center gap-2 text-xs text-gray-700"><span className="text-orange-500">&#9888;</span> New customer, signed up for an account. <span className="text-gray-400 ml-auto">2 weeks ago</span></li>
-      </ul>
-    </div>
-  );
+/**
+ * DashboardRecentActivityWidget - Reusable recent activity component
+ * @param {String} title - Widget title
+ * @param {String} description - Widget description
+ * @param {Array} activities - Array of activity objects with { text, time }
+ * @param {String} icon - Custom icon component (optional)
+ */
+export default function DashboardRecentActivityWidget({ 
+    title = "Recent Activity", 
+    description = "Latest interactions and changes in customer profiles.",
+    activities = [],
+    icon = null
+}) {
+    const defaultIcon = (
+        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    );
+
+    return (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    {icon || defaultIcon}
+                    {title}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">{description}</p>
+            </div>
+            <div className="space-y-3">
+                {activities.map((activity, index) => (
+                    <div key={index} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-700">{activity.text}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{activity.time}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }

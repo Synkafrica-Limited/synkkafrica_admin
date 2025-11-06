@@ -1,27 +1,25 @@
-import { FaUser, FaBell, FaMoneyBillWave } from "react-icons/fa";
+"use client";
+import React from "react";
 
-
+/**
+ * DashboardStatsWidget - Reusable stats cards component
+ * @param {Array} stats - Array of stat objects with { label, value, subtitle, icon, bgColor }
+ */
 export default function DashboardStatsWidget({ stats }) {
-  // Optionally, you can map icon names to components for flexibility
-  const iconMap = {
-    users: <FaUser className="text-blue-500 text-2xl" />,
-    user: <FaUser className="text-blue-500 text-2xl" />,
-    bell: <FaBell className="text-blue-500 text-2xl" />,
-    money: <FaMoneyBillWave className="text-blue-500 text-2xl" />,
-  };
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      {stats.map((stat, idx) => (
-        <div key={stat.label || idx} className="bg-white rounded-xl shadow p-4 flex flex-col items-start">
-          <div className="flex items-center gap-2 mb-2">
-            {stat.icon && iconMap[stat.icon]}
-            <span className="font-semibold text-gray-700">{stat.label}</span>
-          </div>
-          <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-          <div className="text-xs text-gray-500">{stat.sub}</div>
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {stats.map((stat, index) => (
+                <div key={index} className="bg-white rounded-lg border border-gray-200 p-5">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                            {stat.icon}
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-600">{stat.label}</h3>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                    <p className="text-xs text-gray-500">{stat.subtitle}</p>
+                </div>
+            ))}
         </div>
-      ))}
-    </div>
-  );
+    );
 }
