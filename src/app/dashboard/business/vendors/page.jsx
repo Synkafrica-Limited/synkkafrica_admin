@@ -3,15 +3,17 @@ import React, { useState } from "react";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
 import VendorDetailsModal from "@/views/layouts/components/modals/VendorDetailsModal";
-import AdminButton from "@/ui/button";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import { vendors } from "../../../..//models/entities/vendor.entity";
-import { FaSearch, FaEye, FaCheck, FaTimes, FaDownload, FaStore, FaClock, FaExclamationCircle } from 'react-icons/fa';
+import { FaEye, FaCheck, FaTimes, FaStore, FaClock, FaExclamationCircle } from 'react-icons/fa';
+import { useToast } from "@/views/layouts/components/ToastContainer";
 
 export default function VendorsPage() {
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState('All');
 	const [selectedVendor, setSelectedVendor] = useState(null);
 	const [showModal, setShowModal] = useState(false);
+	const { showInfo } = useToast();
 
 	// Filter vendors
 	const filteredVendors = vendors.filter(vendor => {
@@ -27,6 +29,36 @@ export default function VendorsPage() {
 		return matchesSearch && matchesStatus;
 	});
 
+	// Stats
+	const stats = {
+		total: vendors.length,
+		pending: vendors.filter(v => v.status === 'Pending Approval').length,
+		approved: vendors.filter(v => v.status === 'Approved').length,
+		underReview: vendors.filter(v => v.status === 'Under Review').length,
+		rejected: vendors.filter(v => v.status === 'Rejected').length,
+	};
+
+	// Filter groups for DataFilters component
+	const filterGroups = [
+		{
+			label: "Status",
+			value: statusFilter,
+			onChange: setStatusFilter,
+			options: [
+				{ value: "All", label: "All", count: stats.total },
+				{ value: "Pending Approval", label: "Pending", count: stats.pending },
+				{ value: "Approved", label: "Approved", count: stats.approved },
+				{ value: "Under Review", label: "Under Review", count: stats.underReview },
+				{ value: "Rejected", label: "Rejected", count: stats.rejected },
+			]
+		}
+	];
+
+	const handleExport = () => {
+		showInfo("Exporting vendor data...");
+		// Export logic would go here
+	};
+
 	const handleViewDetails = (vendor) => {
 		setSelectedVendor(vendor);
 		setShowModal(true);
@@ -40,14 +72,6 @@ export default function VendorsPage() {
 	const handleReject = (vendorId) => {
 		console.log('Rejecting vendor:', vendorId);
 		// Add rejection logic here
-	};
-
-	// Stats
-	const stats = {
-		total: vendors.length,
-		pending: vendors.filter(v => v.status === 'Pending Approval').length,
-		approved: vendors.filter(v => v.status === 'Approved').length,
-		rejected: vendors.filter(v => v.status === 'Rejected').length,
 	};
 
 	return (
@@ -107,41 +131,18 @@ export default function VendorsPage() {
 						</div>
 					</div>
 
-					{/* Export Button and Search */}
-					<div className="bg-white rounded-lg border border-gray-200 p-6">
-						<div className="flex items-center justify-between mb-6">
-							<div className="flex gap-3">
-								<AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
-									<FaDownload className="text-sm" />
-									Export Data
-								</AdminButton>
-							</div>
-							<div className="flex gap-3">
-								<div className="relative w-80">
-									<FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-									<input
-										type="text"
-										placeholder="Search vendors..."
-										className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-										value={search}
-										onChange={(e) => setSearch(e.target.value)}
-									/>
-								</div>
-								<select
-									value={statusFilter}
-									onChange={(e) => setStatusFilter(e.target.value)}
-									className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-								>
-									<option value="All">All Status ({vendors.length})</option>
-									<option value="Pending Approval">Pending ({stats.pending})</option>
-									<option value="Approved">Approved ({stats.approved})</option>
-									<option value="Under Review">Under Review</option>
-									<option value="Rejected">Rejected ({stats.rejected})</option>
-								</select>
-							</div>
-						</div>
+					{/* Filters */}
+					<DataFilters 
+						searchQuery={search}
+						onSearchChange={(value) => setSearch(value)}
+						searchPlaceholder="Search vendors by name, email, or category"
+						filterGroups={filterGroups}
+						showExport={true}
+						onExport={handleExport}
+					/>
 
-						{/* Table */}
+					{/* Table */}
+					<div className="bg-white rounded-lg border border-gray-200 p-6">
 						<div className="overflow-x-auto">
 							<table className="w-full">
 								<thead>

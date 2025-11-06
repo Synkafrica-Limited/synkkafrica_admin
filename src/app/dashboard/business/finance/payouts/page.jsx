@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { FaWallet, FaCheckCircle, FaEye, FaClock, FaFilter, FaSearch, FaDownload } from "react-icons/fa";
+import { FaWallet, FaCheckCircle, FaEye, FaClock } from "react-icons/fa";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import { useToast } from "@/views/layouts/components/ToastContainer";
 import PreviewModal from "@/views/layouts/components/modals/PreviewModal";
 import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
@@ -124,6 +125,25 @@ export default function PayoutsPage() {
         },
     ];
 
+    // Filter groups for DataFilters component
+    const filterGroups = [
+        {
+            label: "Status",
+            value: statusFilter,
+            onChange: setStatusFilter,
+            options: [
+                { value: "all", label: "All", count: payouts.length },
+                { value: "pending", label: "Pending", count: payouts.filter(p => p.status === "pending").length },
+                { value: "processing", label: "Processing", count: payouts.filter(p => p.status === "processing").length },
+                { value: "completed", label: "Completed", count: payouts.filter(p => p.status === "completed").length },
+            ]
+        }
+    ];
+
+    const handleExport = () => {
+        showInfo("Exporting payouts data...");
+    };
+
     // Filter payouts
     const filteredPayouts = payouts.filter(payout => {
         const matchesSearch = searchQuery === "" || 
@@ -193,46 +213,14 @@ export default function PayoutsPage() {
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                            <div className="flex-1 w-full md:w-auto">
-                                <div className="relative">
-                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by vendor, payout ID..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3 items-center flex-wrap">
-                                <div className="flex items-center gap-2">
-                                    <FaFilter className="text-gray-500" />
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    >
-                                        <option value="all">All Status</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="processing">Processing</option>
-                                        <option value="completed">Completed</option>
-                                    </select>
-                                </div>
-
-                                <button
-                                    onClick={() => showInfo("Exporting payouts data...")}
-                                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                                >
-                                    <FaDownload />
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <DataFilters 
+                        searchQuery={searchQuery}
+                        onSearchChange={(value) => setSearchQuery(value)}
+                        searchPlaceholder="Search by vendor, payout ID..."
+                        filterGroups={filterGroups}
+                        showExport={true}
+                        onExport={handleExport}
+                    />
 
                     {/* Payouts Table */}
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

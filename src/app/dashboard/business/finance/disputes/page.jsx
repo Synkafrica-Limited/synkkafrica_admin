@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { FaExclamationTriangle, FaEye, FaCheckCircle, FaFilter, FaSearch, FaDownload } from "react-icons/fa";
+import { FaExclamationTriangle, FaEye, FaCheckCircle } from "react-icons/fa";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import { useToast } from "@/views/layouts/components/ToastContainer";
 import PreviewModal from "@/views/layouts/components/modals/PreviewModal";
 import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
@@ -99,6 +100,25 @@ export default function DisputesPage() {
         },
     ];
 
+    // Filter groups for DataFilters component
+    const filterGroups = [
+        {
+            label: "Status",
+            value: statusFilter,
+            onChange: setStatusFilter,
+            options: [
+                { value: "all", label: "All", count: disputes.length },
+                { value: "open", label: "Open", count: disputes.filter(d => d.status === "open").length },
+                { value: "in_review", label: "In Review", count: disputes.filter(d => d.status === "in_review").length },
+                { value: "resolved", label: "Resolved", count: disputes.filter(d => d.status === "resolved").length },
+            ]
+        }
+    ];
+
+    const handleExport = () => {
+        showInfo("Exporting disputes data...");
+    };
+
     // Filter disputes
     const filteredDisputes = disputes.filter(dispute => {
         const matchesSearch = searchQuery === "" || 
@@ -173,46 +193,14 @@ export default function DisputesPage() {
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                            <div className="flex-1 w-full md:w-auto">
-                                <div className="relative">
-                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by dispute ID, customer, order..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3 items-center flex-wrap">
-                                <div className="flex items-center gap-2">
-                                    <FaFilter className="text-gray-500" />
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    >
-                                        <option value="all">All Status</option>
-                                        <option value="open">Open</option>
-                                        <option value="in_review">In Review</option>
-                                        <option value="resolved">Resolved</option>
-                                    </select>
-                                </div>
-
-                                <button
-                                    onClick={() => showInfo("Exporting disputes data...")}
-                                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                                >
-                                    <FaDownload />
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <DataFilters 
+                        searchQuery={searchQuery}
+                        onSearchChange={(value) => setSearchQuery(value)}
+                        searchPlaceholder="Search by dispute ID, customer, order..."
+                        filterGroups={filterGroups}
+                        showExport={true}
+                        onExport={handleExport}
+                    />
 
                     {/* Disputes Table */}
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
