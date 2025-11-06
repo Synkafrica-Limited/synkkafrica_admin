@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { FaSearch, FaEye, FaEyeSlash, FaTrash, FaCheck, FaTimes, FaClock, FaStar, FaDownload, FaFilter, FaStore, FaMapMarkerAlt } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaTrash, FaCheck, FaTimes, FaClock, FaStar, FaStore, FaMapMarkerAlt } from "react-icons/fa";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
-import AdminButton from "@/ui/button";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
 import ApprovalDialog from "@/views/layouts/components/modals/ApprovalDialog";
 import { useToast } from "@/views/layouts/components/ToastContainer";
@@ -166,6 +166,39 @@ export default function ListingsPage() {
     revenue: listings.reduce((sum, l) => sum + l.revenue, 0)
   };
 
+  // Define filter groups for DataFilters component
+  const filterGroups = [
+    {
+      label: "Status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: [
+        { value: "All", label: "All", count: stats.total },
+        { value: "Active", label: "Active", count: stats.active },
+        { value: "Pending Review", label: "Pending Review", count: stats.pending },
+        { value: "Flagged", label: "Flagged", count: listings.filter(l => l.status === 'Flagged').length },
+      ],
+    },
+    {
+      label: "Visibility",
+      value: visibilityFilter,
+      onChange: setVisibilityFilter,
+      options: [
+        { value: "All", label: "All" },
+        { value: "Visible", label: "Visible", count: stats.visible },
+        { value: "Hidden", label: "Hidden", count: listings.filter(l => l.visibility === 'Hidden').length },
+      ],
+    },
+  ];
+
+  const handleExport = () => {
+    showInfo('Export', 'Exporting listings data...');
+  };
+
+  const handleMoreFilters = () => {
+    showInfo('More Filters', 'Advanced filters coming soon...');
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <div className="sticky top-0 h-screen">
@@ -237,68 +270,19 @@ export default function ListingsPage() {
           </div>
 
           {/* Filters and Search */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
-              <div className="flex gap-3 flex-wrap">
-                <AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
-                  <FaDownload className="text-sm" />
-                  Export Data
-                </AdminButton>
-                <AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
-                  <FaFilter className="text-sm" />
-                  More Filters
-                </AdminButton>
-              </div>
-              <div className="flex gap-3 w-full lg:w-auto flex-wrap">
-                <div className="relative flex-1 lg:w-80">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search listings, vendors..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+          <DataFilters
+            searchQuery={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search listings, vendors..."
+            filterGroups={filterGroups}
+            showExport={true}
+            onExport={handleExport}
+            showMoreFilters={true}
+            onMoreFilters={handleMoreFilters}
+          />
 
-            {/* Filter Tabs */}
-            <div className="flex gap-4 mb-6 flex-wrap">
-              <div className="flex gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700 py-2">Status:</span>
-                {['All', 'Active', 'Pending Review', 'Flagged'].map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setStatusFilter(status)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      statusFilter === status 
-                        ? "bg-orange-500 text-white" 
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700 py-2">Visibility:</span>
-                {['All', 'Visible', 'Hidden'].map((visibility) => (
-                  <button
-                    key={visibility}
-                    onClick={() => setVisibilityFilter(visibility)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      visibilityFilter === visibility 
-                        ? "bg-orange-500 text-white" 
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {visibility}
-                  </button>
-                ))}
-              </div>
-            </div>
-
+          {/* Listings Table Wrapper */}
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mt-6">
             {/* Listings Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -451,7 +435,7 @@ export default function ListingsPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 px-6 pb-6">
               <p className="text-sm text-gray-600">Showing {filteredListings.length} of {listings.length} listings</p>
               <div className="flex items-center gap-2">
                 <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">

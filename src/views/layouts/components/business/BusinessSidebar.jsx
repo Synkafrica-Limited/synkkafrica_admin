@@ -34,9 +34,7 @@ export default function BusinessSidebar({ active, onLogout }) {
       <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = active === item.label || 
-                          (item.label === "Dashboard" && active === "Home") ||
-                          (item.label === "Orders" && active === "Finance") ||
-                          (item.label === "Transaction" && active === "Finance");
+                          (item.label === "Dashboard" && active === "Home");
           return (
             <a
               key={item.label}
@@ -61,10 +59,10 @@ export default function BusinessSidebar({ active, onLogout }) {
         {/* Profile */}
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 mb-3">
           <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center overflow-hidden text-white font-semibold">
-            N
+            T
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">Nica Osbert</p>
+            <p className="text-sm font-medium text-gray-900 truncate">Temidayo Faluyi</p>
           </div>
         </div>
         
