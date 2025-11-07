@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { FaHome, FaUsers, FaStore, FaChartBar, FaList, FaClock, FaFileAlt, FaEye } from "react-icons/fa";
 import TechnicalSidebar from "@/views/layouts/components/technical/TechnicalSidebar";
 import TechnicalHeader from "@/views/layouts/components/technical/TechnicalHeader";
@@ -9,6 +9,7 @@ import DashboardRecentActivityWidget from "@/views/layouts/widgets/DashboardRece
 import DashboardUserStatsWidget from "@/views/layouts/widgets/DashboardUserStatsWidget";
 
 export default function TechnicalDashboard() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     // Technical dashboard stats - CMS focused
     const stats = [
         { label: "Total Listings", value: "1,247", icon: <FaList className="text-blue-500" />, color: "text-blue-500" },
@@ -44,14 +45,24 @@ export default function TechnicalDashboard() {
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            <div className="sticky top-0 h-screen">
-                <TechnicalSidebar active="Home" onLogout={() => console.log('Logout')} />
-            </div>
-            <div className="flex-1 flex flex-col h-screen">
+            {/* Sidebar */}
+            <TechnicalSidebar 
+                active="Home" 
+                onLogout={() => console.log('Logout')}
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+            />
+            
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-w-0">
                 <div className="sticky top-0 z-30 bg-gray-50">
-                    <TechnicalHeader title="Technical Dashboard" subtitle="System overview and administration" />
+                    <TechnicalHeader 
+                        title="Technical Dashboard" 
+                        subtitle="System overview and administration"
+                        onMenuClick={() => setSidebarOpen(true)}
+                    />
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 md:p-10">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10">
                     <DashboardStatsWidget stats={stats} />
                     
                     <DashboardChartWidget 

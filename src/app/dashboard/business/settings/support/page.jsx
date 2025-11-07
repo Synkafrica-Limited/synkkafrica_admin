@@ -18,6 +18,7 @@ export default function SupportPage() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showTicketDetails, setShowTicketDetails] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Stats
   const stats = {
@@ -163,18 +164,24 @@ export default function SupportPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <div className="sticky top-0 h-screen">
-        <BusinessSidebar active="Settings" />
-      </div>
-      <div className="flex-1 flex flex-col min-h-screen">
+      {/* Sidebar */}
+      <BusinessSidebar 
+        active="Settings"
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
         <BusinessHeader 
           title="Support Center" 
-          subtitle="Manage customer support tickets and agents" 
+          subtitle="Manage customer support tickets and agents"
+          onMenuClick={() => setSidebarOpen(true)}
         />
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 mb-6">
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <FaTicketAlt className="text-blue-600" />
