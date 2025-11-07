@@ -13,6 +13,7 @@ import DashboardUserStatsWidget from "@/views/layouts/widgets/DashboardUserStats
 
 export default function BusinessDashboard() {
     const [selectedYear, setSelectedYear] = useState("2025");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     
     // Stats cards data matching the vendor dashboard design
     const statsCards = [
@@ -72,14 +73,24 @@ export default function BusinessDashboard() {
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            <div className="sticky top-0 h-screen">
-                <BusinessSidebar active="Dashboard" onLogout={() => console.log('Logout')} />
-            </div>
-            <div className="flex-1 flex flex-col min-h-screen">
+            {/* Sidebar */}
+            <BusinessSidebar 
+                active="Dashboard" 
+                onLogout={() => console.log('Logout')}
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+            />
+            
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-w-0">
                 {/* Header with search and user profile */}
-                    <BusinessHeader title="Dashboard" subtitle="Overview of business activities" />
+                <BusinessHeader 
+                    title="Dashboard" 
+                    subtitle="Overview of business activities"
+                    onMenuClick={() => setSidebarOpen(true)}
+                />
 
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                     {/* Welcome Section */}
                     <div className="mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">Hello Admin</h2>
@@ -90,7 +101,7 @@ export default function BusinessDashboard() {
                     <DashboardStatsWidget stats={statsCards} />
 
                     {/* Charts Section - Statistics, Revenue, Top Services */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
                         <DashboardChartWidget 
                             title="Statistics" 
                             data={[320, 240, 160, 80, 280, 200, 150, 300, 250, 180, 220, 190]}
@@ -117,7 +128,7 @@ export default function BusinessDashboard() {
                     </div>
 
                     {/* Recent Activity and User Statistics */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                         <DashboardRecentActivityWidget 
                             title="Recent Activity"
                             description="Latest interactions and changes in customer profiles."

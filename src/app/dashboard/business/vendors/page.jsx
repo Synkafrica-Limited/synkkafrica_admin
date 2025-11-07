@@ -13,6 +13,7 @@ export default function VendorsPage() {
 	const [statusFilter, setStatusFilter] = useState('All');
 	const [selectedVendor, setSelectedVendor] = useState(null);
 	const [showModal, setShowModal] = useState(false);
+	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const { showInfo } = useToast();
 
 	// Filter vendors
@@ -76,14 +77,23 @@ export default function VendorsPage() {
 
 	return (
 		<div className="flex min-h-screen bg-gray-50">
-			<div className="sticky top-0 h-screen">
-				<BusinessSidebar active="Vendors" />
-			</div>
-			<div className="flex-1 flex flex-col min-h-screen">
+			{/* Sidebar */}
+			<BusinessSidebar 
+				active="Vendors"
+				isOpen={sidebarOpen}
+				onClose={() => setSidebarOpen(false)}
+			/>
+			
+			{/* Main Content */}
+			<div className="flex-1 flex flex-col min-w-0">
 				{/* Header */}
-				<BusinessHeader title="Vendor Management" subtitle="Review and manage vendor applications" />
+				<BusinessHeader 
+					title="Vendor Management" 
+					subtitle="Review and manage vendor applications"
+					onMenuClick={() => setSidebarOpen(true)}
+				/>
 
-				<div className="flex-1 overflow-y-auto p-6">
+				<div className="flex-1 overflow-y-auto p-4 sm:p-6">
 					{/* Stats Cards */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 						<div className="bg-white rounded-lg border border-gray-200 p-5">
@@ -142,8 +152,9 @@ export default function VendorsPage() {
 					/>
 
 					{/* Table */}
-					<div className="bg-white rounded-lg border border-gray-200 p-6">
-						<div className="overflow-x-auto">
+					<div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+						{/* Desktop Table */}
+						<div className="hidden lg:block overflow-x-auto">
 							<table className="w-full">
 								<thead>
 									<tr className="border-b border-gray-200">
@@ -254,8 +265,107 @@ export default function VendorsPage() {
 							</table>
 						</div>
 
+						{/* Mobile Cards */}
+						<div className="lg:hidden space-y-4">
+							{filteredVendors.map((vendor) => (
+								<div key={vendor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+									<div className="flex items-start justify-between mb-3">
+										<div className="flex-1 min-w-0">
+											<h3 className="font-medium text-gray-900 truncate">{vendor.businessName}</h3>
+											<p className="text-xs text-gray-500 mt-1">{vendor.id}</p>
+										</div>
+										<div className="ml-3">
+											{vendor.status === 'Approved' && (
+												<span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+													<FaCheck className="text-xs" />
+													Approved
+												</span>
+											)}
+											{vendor.status === 'Pending Approval' && (
+												<span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium border border-yellow-200">
+													<FaClock className="text-xs" />
+													Pending
+												</span>
+											)}
+											{vendor.status === 'Under Review' && (
+												<span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-200 whitespace-nowrap">
+													Review
+												</span>
+											)}
+											{vendor.status === 'Rejected' && (
+												<span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-full text-xs font-medium border border-red-200">
+													<FaTimes className="text-xs" />
+													Rejected
+												</span>
+											)}
+										</div>
+									</div>
+									
+									<div className="space-y-2 text-sm mb-3">
+										<div className="flex items-center gap-2">
+											<span className="text-gray-500 w-20">Owner:</span>
+											<span className="text-gray-900">{vendor.ownerName}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-gray-500 w-20">Category:</span>
+											<span className="text-gray-700">{vendor.category}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-gray-500 w-20">Location:</span>
+											<span className="text-gray-600">{vendor.location}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="text-gray-500 w-20">Email:</span>
+											<span className="text-gray-600 truncate">{vendor.email}</span>
+										</div>
+									</div>
+
+									<div className="mb-3">
+										<div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+											<span>{vendor.verificationStatus}</span>
+											<span>{vendor.completionPercentage}% complete</span>
+										</div>
+										<div className="w-full bg-gray-200 rounded-full h-1.5">
+											<div 
+												className="bg-orange-500 h-1.5 rounded-full transition-all" 
+												style={{ width: `${vendor.completionPercentage}%` }}
+											></div>
+										</div>
+									</div>
+
+									<div className="flex gap-2 pt-3 border-t border-gray-100">
+										<button 
+											onClick={() => handleViewDetails(vendor)}
+											className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-sm font-medium"
+										>
+											<FaEye />
+											View Details
+										</button>
+										{vendor.status === 'Pending Approval' && (
+											<>
+												<button 
+													onClick={() => handleApprove(vendor.id)}
+													className="px-3 py-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+													title="Approve"
+												>
+													<FaCheck />
+												</button>
+												<button 
+													onClick={() => handleReject(vendor.id)}
+													className="px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+													title="Reject"
+												>
+													<FaTimes />
+												</button>
+											</>
+										)}
+									</div>
+								</div>
+							))}
+						</div>
+
 						{/* Pagination */}
-						<div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+						<div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
 							<p className="text-sm text-gray-600">Showing 1 to {filteredVendors.length} of {vendors.length} results</p>
 							<div className="flex items-center gap-2">
 								<button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
