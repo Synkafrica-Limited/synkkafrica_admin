@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { FaUndo, FaEye, FaCheckCircle, FaFilter, FaSearch, FaDownload, FaClock } from "react-icons/fa";
+import { FaUndo, FaEye, FaCheckCircle, FaClock } from "react-icons/fa";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import { useToast } from "@/views/layouts/components/ToastContainer";
 import PreviewModal from "@/views/layouts/components/modals/PreviewModal";
 import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
@@ -100,6 +101,24 @@ export default function RefundsPage() {
         },
     ];
 
+    // Filter groups for DataFilters component
+    const filterGroups = [
+        {
+            label: "Status",
+            value: statusFilter,
+            onChange: setStatusFilter,
+            options: [
+                { value: "all", label: "All", count: refunds.length },
+                { value: "pending", label: "Pending", count: refunds.filter(r => r.status === "pending").length },
+                { value: "completed", label: "Completed", count: refunds.filter(r => r.status === "completed").length },
+            ]
+        }
+    ];
+
+    const handleExport = () => {
+        showInfo("Exporting refunds data...");
+    };
+
     // Filter refunds
     const filteredRefunds = refunds.filter(refund => {
         const matchesSearch = searchQuery === "" || 
@@ -174,46 +193,14 @@ export default function RefundsPage() {
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                            <div className="flex-1 w-full md:w-auto">
-                                <div className="relative">
-                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search by refund ID, customer, order..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3 items-center flex-wrap">
-                                <div className="flex items-center gap-2">
-                                    <FaFilter className="text-gray-500" />
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    >
-                                        <option value="all">All Status</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="failed">Failed</option>
-                                    </select>
-                                </div>
-
-                                <button
-                                    onClick={() => showInfo("Exporting refunds data...")}
-                                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                                >
-                                    <FaDownload />
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <DataFilters 
+                        searchQuery={searchQuery}
+                        onSearchChange={(value) => setSearchQuery(value)}
+                        searchPlaceholder="Search by refund ID, customer, order..."
+                        filterGroups={filterGroups}
+                        showExport={true}
+                        onExport={handleExport}
+                    />
 
                     {/* Refunds Table */}
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

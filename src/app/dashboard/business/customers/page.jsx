@@ -1,16 +1,45 @@
 "use client";
 import React, { useState } from "react";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
-import AdminButton from "@/ui/button";
 import DataTable from "@/views/layouts/components/tables/DataTable";
-import { FaSearch, FaEye, FaEdit, FaBan, FaDownload, FaUserPlus } from 'react-icons/fa';
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
+import { FaEye, FaEdit, FaBan, FaUserPlus } from 'react-icons/fa';
 import { customers } from "../../../../models/entities/customer.entity";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import { useToast } from "@/views/layouts/components/ToastContainer";
 
 export default function CustomerPage() {
+	const { showInfo } = useToast();
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState('All');
 	const [selectedPeriod, setSelectedPeriod] = useState('All Time');
+
+	// Stats calculation
+	const stats = {
+		total: customers.length,
+		active: customers.filter(c => c.status === 'Active').length,
+		inactive: customers.filter(c => c.status === 'Inactive').length,
+		blocked: customers.filter(c => c.status === 'Blocked').length,
+	};
+
+	// Filter groups for DataFilters
+	const filterGroups = [
+		{
+			label: "Status",
+			value: statusFilter,
+			onChange: setStatusFilter,
+			options: [
+				{ value: "All", label: "All Customers", count: stats.total },
+				{ value: "Active", label: "Active", count: stats.active },
+				{ value: "Inactive", label: "Inactive", count: stats.inactive },
+				{ value: "Blocked", label: "Blocked", count: stats.blocked },
+			],
+		},
+	];
+
+	const handleExport = () => {
+		showInfo('Export', 'Exporting customer data...');
+	};
 
 	// Filter customers
 	const filteredCustomers = customers.filter(customer => {
@@ -185,26 +214,18 @@ export default function CustomerPage() {
 						</div>
 					</div>
 
-					{/* Export Button and Search */}
-					<div className="bg-white rounded-lg border border-gray-200 p-6">
-						<div className="flex items-center justify-between mb-6">
-							<AdminButton variant="secondary" className="flex items-center gap-2 border-gray-300 text-gray-700">
-								<FaDownload className="text-sm" />
-								Export Data
-							</AdminButton>
-							<div className="relative w-80">
-								<FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-								<input
-									type="text"
-									placeholder="Search customers"
-									className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-									value={search}
-									onChange={(e) => setSearch(e.target.value)}
-								/>
-							</div>
-						</div>
+				{/* Filters */}
+				<DataFilters 
+					searchQuery={search}
+					onSearchChange={(value) => setSearch(value)}
+					searchPlaceholder="Search customers by name, email, or phone"
+					filterGroups={filterGroups}
+					showExport={true}
+					onExport={handleExport}
+				/>
 
-						{/* Table */}
+				{/* Table */}
+				<div className="bg-white rounded-lg border border-gray-200 p-6">
 						<div className="overflow-x-auto">
 							<table className="w-full">
 								<thead>
@@ -301,66 +322,7 @@ export default function CustomerPage() {
 						</div>
 					</div>
 
-					{/* Recent Activity and User Statistics */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-						{/* Recent Activity */}
-						<div className="bg-white rounded-lg border border-gray-200 p-6">
-							<div className="mb-4">
-								<h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-									<svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-									</svg>
-									Recent Activity
-								</h3>
-								<p className="text-sm text-gray-500 mt-1">Latest interactions and changes in customer profiles.</p>
-							</div>
-							<div className="space-y-3">
-								{[
-									{ time: '2 mins ago', desc: 'Emmanuel created a new booking for luxury sedan.' },
-									{ time: '1 hour ago', desc: 'Reju updated visa contact phone number.' },
-									{ time: '6 hour ago', desc: 'Temi completed a trip.' },
-									{ time: '10 hour ago', desc: 'Dammy created a new booking for laundry.' },
-									{ time: '3 days ago', desc: 'Ezra created a new booking for dining.' },
-									{ time: '3 days ago', desc: 'Toyosi cancelled a refund.' },
-									{ time: '2 weeks ago', desc: 'New customer signed-up for an account.' },
-								].map((activity, index) => (
-									<div key={index} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
-										<div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5 flex-shrink-0"></div>
-										<div className="flex-1">
-											<p className="text-sm text-gray-700">{activity.desc}</p>
-											<p className="text-xs text-gray-400 mt-0.5">{activity.time}</p>
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
 
-						{/* User Statistics */}
-						<div className="bg-white rounded-lg border border-gray-200 p-6">
-							<div className="mb-4">
-								<h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-									<svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-									</svg>
-									User Statistics
-								</h3>
-								<p className="text-sm text-gray-500 mt-1">Key insights into your user base.</p>
-							</div>
-							<div className="space-y-4">
-								{[
-									{ label: 'New Users (Last 30 days)', value: '150' },
-									{ label: 'Total Active Users', value: '1500' },
-									{ label: 'Registered Users', value: '2500' },
-									{ label: 'Average Daily Sessions', value: '500' },
-								].map((stat, index) => (
-									<div key={index} className="flex items-center justify-between pb-4 border-b border-gray-100 last:border-0">
-										<span className="text-sm text-gray-600">{stat.label}</span>
-										<span className="text-2xl font-bold text-gray-900">{stat.value}</span>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

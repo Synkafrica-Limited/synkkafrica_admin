@@ -1,16 +1,30 @@
 "use client";
 import React from "react";
-import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
+import { FaBell, FaSearch, FaUserCircle, FaBars } from "react-icons/fa";
 
-export default function TechnicalHeader({ title = "Technical Dashboard", subtitle = "System Administration" }) {
+export default function TechnicalHeader({ title = "Technical Dashboard", subtitle = "System Administration", onMenuClick }) {
   return (
     <header className="bg-white shadow-sm px-4 md:px-10 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800">{title}</h1>
-          {subtitle && <p className="text-gray-500 text-sm">{subtitle}</p>}
+      <div className="flex items-center justify-between gap-4">
+        {/* Mobile Menu Button + Page Title */}
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          {/* Hamburger Menu - Mobile Only */}
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            aria-label="Open menu"
+          >
+            <FaBars className="text-xl text-gray-600" />
+          </button>
+          
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 truncate">{title}</h1>
+            {subtitle && <p className="text-gray-500 text-xs sm:text-sm truncate">{subtitle}</p>}
+          </div>
         </div>
-        <div className="flex items-center gap-4">
+        
+        {/* Actions */}
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
           {/* Search */}
           <div className="relative hidden md:block">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

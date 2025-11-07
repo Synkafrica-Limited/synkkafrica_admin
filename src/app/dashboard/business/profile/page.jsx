@@ -21,7 +21,7 @@ export default function BusinessProfile() {
   return (
 <div className="flex min-h-screen bg-gray-50">
       <div className="sticky top-0 h-screen">
-        <BusinessSidebar active="Vendors" />
+        <BusinessSidebar active="My Profile" />
       </div>
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Header */}

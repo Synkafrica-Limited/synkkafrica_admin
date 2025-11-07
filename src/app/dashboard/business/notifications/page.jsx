@@ -8,7 +8,6 @@ import {
     FaTimesCircle,
     FaTrash,
     FaCheck,
-    FaFilter,
     FaEnvelope,
     FaEnvelopeOpen,
     FaUserPlus,
@@ -18,6 +17,7 @@ import {
 } from "react-icons/fa";
 import BusinessSidebar from "@/views/layouts/components/business/BusinessSidebar";
 import BusinessHeader from "@/views/layouts/components/business/BusinessHeader";
+import DataFilters from "@/views/layouts/components/filters/DataFilters";
 import { useToast } from "@/views/layouts/components/ToastContainer";
 import ConfirmDialog from "@/views/layouts/components/modals/ConfirmDialog";
 
@@ -146,10 +146,48 @@ export default function NotificationsPage() {
     // Stats
     const totalNotifications = notifications.length;
     const unreadCount = notifications.filter(n => !n.isRead).length;
+    const readCount = notifications.filter(n => n.isRead).length;
     const todayCount = notifications.filter(n => {
         const today = new Date();
         return n.time.toDateString() === today.toDateString();
     }).length;
+
+    // Category counts
+    const categoryStats = {
+        all: notifications.length,
+        orders: notifications.filter(n => n.category === 'orders').length,
+        vendors: notifications.filter(n => n.category === 'vendors').length,
+        users: notifications.filter(n => n.category === 'users').length,
+        finance: notifications.filter(n => n.category === 'finance').length,
+        approvals: notifications.filter(n => n.category === 'approvals').length,
+    };
+
+    // Filter groups for DataFilters component
+    const filterGroups = [
+        {
+            label: "Status",
+            value: filter,
+            onChange: setFilter,
+            options: [
+                { value: "all", label: "All", count: totalNotifications },
+                { value: "unread", label: "Unread", count: unreadCount },
+                { value: "read", label: "Read", count: readCount },
+            ]
+        },
+        {
+            label: "Category",
+            value: categoryFilter,
+            onChange: setCategoryFilter,
+            options: [
+                { value: "all", label: "All Categories", count: categoryStats.all },
+                { value: "orders", label: "Orders", count: categoryStats.orders },
+                { value: "vendors", label: "Vendors", count: categoryStats.vendors },
+                { value: "users", label: "Users", count: categoryStats.users },
+                { value: "finance", label: "Finance", count: categoryStats.finance },
+                { value: "approvals", label: "Approvals", count: categoryStats.approvals },
+            ]
+        }
+    ];
 
     // Filter notifications
     const filteredNotifications = notifications.filter(notification => {
@@ -309,38 +347,9 @@ export default function NotificationsPage() {
                     </div>
 
                     {/* Filters and Actions */}
-                    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                            {/* Filters */}
-                            <div className="flex flex-wrap gap-3 items-center">
-                                <div className="flex items-center gap-2">
-                                    <FaFilter className="text-gray-500" />
-                                    <select
-                                        value={filter}
-                                        onChange={(e) => setFilter(e.target.value)}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    >
-                                        <option value="all">All Notifications</option>
-                                        <option value="unread">Unread Only</option>
-                                        <option value="read">Read Only</option>
-                                    </select>
-                                </div>
-
-                                <select
-                                    value={categoryFilter}
-                                    onChange={(e) => setCategoryFilter(e.target.value)}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                >
-                                    <option value="all">All Categories</option>
-                                    <option value="orders">Orders</option>
-                                    <option value="vendors">Vendors</option>
-                                    <option value="users">Users</option>
-                                    <option value="finance">Finance</option>
-                                    <option value="approvals">Approvals</option>
-                                </select>
-                            </div>
-
-                            {/* Actions */}
+                    <DataFilters 
+                        filterGroups={filterGroups}
+                        customActions={
                             <div className="flex gap-2 flex-wrap">
                                 {selectedNotifications.length > 0 && (
                                     <button
@@ -361,8 +370,8 @@ export default function NotificationsPage() {
                                     </button>
                                 )}
                             </div>
-                        </div>
-                    </div>
+                        }
+                    />
 
                     {/* Notifications List */}
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
